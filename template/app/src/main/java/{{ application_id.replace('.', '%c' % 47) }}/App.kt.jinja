@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -24,56 +21,41 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
-internal enum class Screen(val label: Int) {
-    HOME(R.string.home),
-    SETTINGS(R.string.settings),
-}
-
 @Composable
 fun App() {
     var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
     var count by rememberSaveable { mutableIntStateOf(0) }
     val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
     MaterialTheme(colorScheme = colors) {
-        Scaffold(
-            bottomBar = {
-                NavigationBar {
-                    Screen.entries.forEach { destination ->
-                        NavigationBarItem(
-                            selected = screen == destination,
-                            onClick = { screen = destination },
-                            icon = { Text(if (destination == Screen.HOME) "⌂" else "⚙") },
-                            label = { Text(stringResource(destination.label)) },
-                            modifier = Modifier.testTag(destination.name),
-                        )
-                    }
-                }
-            },
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                Text(stringResource(screen.label), style = MaterialTheme.typography.headlineMedium)
-                when (screen) {
-                    Screen.HOME -> {
-                        Text(stringResource(R.string.counter, count), Modifier.testTag("counter"))
-                        Button(
-                            onClick = { count = increment(count) },
-                            modifier = Modifier.testTag("increment"),
-                        ) {
-                            Text(stringResource(R.string.increment))
-                        }
-                    }
-                    Screen.SETTINGS -> Text(
-                        stringResource(R.string.theme_description),
-                        Modifier.testTag("settings"),
-                    )
+        AppNavigation(screen, { screen = it }) {
+            ScreenContent(screen, count) { count = increment(count) }
+        }
+    }
+}
+
+@Composable
+private fun ScreenContent(screen: Screen, count: Int, onIncrement: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        when (screen) {
+            Screen.HOME -> {
+                Text(stringResource(R.string.counter, count), Modifier.testTag("counter"))
+                Button(onClick = onIncrement, modifier = Modifier.testTag("increment")) {
+                    Text(stringResource(R.string.increment))
                 }
             }
+            Screen.SETTINGS -> Text(
+                stringResource(R.string.theme_description),
+                Modifier.testTag("settings"),
+            )
+            Screen.ABOUT -> Text(
+                stringResource(R.string.about_description),
+                Modifier.testTag("about"),
+            )
         }
     }
 }

@@ -1,0 +1,171 @@
+package {{ application_id }}
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.PermanentDrawerSheet
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+
+@Composable
+internal fun AppBottomBar(screen: Screen, onNavigate: (Screen) -> Unit) {
+    NavigationBar(Modifier.testTag("phone-navigation")) {
+        Screen.entries.forEach { destination ->
+            NavigationBarItem(
+                selected = screen == destination,
+                onClick = { onNavigate(destination) },
+                icon = { DestinationIcon(destination) },
+                label = { Text(stringResource(destination.label)) },
+                modifier = Modifier.testTag("bottom-${destination.name}"),
+            )
+        }
+    }
+}
+
+@Composable
+internal fun AppRail(
+    screen: Screen,
+    onNavigate: (Screen) -> Unit,
+    onExpand: (() -> Unit)? = null,
+) {
+    NavigationRail(
+        modifier = Modifier.testTag("navigation-rail"),
+        header = {
+            AppLogo()
+            onExpand?.let { expand ->
+                IconButton(expand, Modifier.testTag("expand-sidebar")) {
+                    Icon(
+                        Icons.Filled.KeyboardArrowRight,
+                        stringResource(R.string.expand_navigation),
+                    )
+                }
+            }
+        },
+    ) {
+        Screen.entries.forEach { destination ->
+            NavigationRailItem(
+                selected = screen == destination,
+                onClick = { onNavigate(destination) },
+                icon = { DestinationIcon(destination) },
+                label = { Text(stringResource(destination.label)) },
+                modifier = Modifier.testTag("rail-${destination.name}"),
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ExpandedDrawer(screen: Screen, onNavigate: (Screen) -> Unit, onCollapse: () -> Unit) {
+    PermanentDrawerSheet(
+        modifier = Modifier
+            .width(280.dp)
+            .fillMaxHeight()
+            .testTag("expanded-sidebar"),
+    ) {
+        DrawerContents(screen, onNavigate, onCollapse)
+    }
+}
+
+@Composable
+internal fun DrawerContents(
+    screen: Screen,
+    onNavigate: (Screen) -> Unit,
+    onCollapse: (() -> Unit)? = null,
+) {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            AppLogo()
+            Text(
+                stringResource(R.string.app_name),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            onCollapse?.let { collapse ->
+                IconButton(collapse, Modifier.testTag("collapse-sidebar")) {
+                    Icon(
+                        Icons.Filled.KeyboardArrowLeft,
+                        stringResource(R.string.collapse_navigation),
+                    )
+                }
+            }
+        }
+        HorizontalDivider()
+        DrawerGroup(R.string.workspace, listOf(Screen.HOME), screen, onNavigate)
+        HorizontalDivider(Modifier.padding(vertical = 8.dp))
+        DrawerGroup(R.string.application, listOf(Screen.SETTINGS, Screen.ABOUT), screen, onNavigate)
+    }
+}
+
+@Composable
+private fun DrawerGroup(
+    title: Int,
+    destinations: List<Screen>,
+    screen: Screen,
+    onNavigate: (Screen) -> Unit,
+) {
+    Text(
+        stringResource(title),
+        modifier = Modifier.padding(horizontal = 28.dp, vertical = 12.dp),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    destinations.forEach { destination ->
+        NavigationDrawerItem(
+            label = { Text(stringResource(destination.label)) },
+            selected = screen == destination,
+            onClick = { onNavigate(destination) },
+            icon = { DestinationIcon(destination) },
+            modifier = Modifier
+                .padding(NavigationDrawerItemDefaults.ItemPadding)
+                .testTag("drawer-${destination.name}"),
+        )
+    }
+}
+
+@Composable
+private fun DestinationIcon(screen: Screen) {
+    Icon(screen.icon, contentDescription = null)
+}
+
+@Composable
+private fun AppLogo() {
+    Icon(
+        painterResource(R.drawable.ic_app_logo),
+        contentDescription = null,
+        modifier = Modifier.size(36.dp),
+        tint = Color.Unspecified,
+    )
+}

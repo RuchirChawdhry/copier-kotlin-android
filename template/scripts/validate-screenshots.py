@@ -5,7 +5,18 @@ import struct
 import sys
 import zlib
 
-EXPECTED = {f"{theme}-{screen}.png" for theme in ("light", "dark") for screen in ("home", "settings")}
+LAYOUTS = {
+    "phone": ("phone-home", "phone-drawer", "phone-settings", "phone-about"),
+    "rail": ("rail-home",),
+    "wide": ("wide-home", "wide-collapsed"),
+    "landscape": ("landscape-home", "landscape-collapsed"),
+}
+EXPECTED = {
+    f"{theme}-{screen}.png"
+    for theme in ("light", "dark")
+    for screens in LAYOUTS.values()
+    for screen in screens
+}
 SIGNATURE = bytes.fromhex("89504e470d0a1a0a")
 
 
@@ -44,6 +55,9 @@ def validate_png(path):
 
 
 def main():
+    if len(sys.argv) == 3 and sys.argv[1] == "--names":
+        print(" ".join(LAYOUTS[sys.argv[2]]))
+        return
     root = pathlib.Path(sys.argv[1])
     actual = {p.name for p in root.iterdir()}
     if actual != EXPECTED:

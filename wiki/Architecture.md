@@ -19,7 +19,9 @@ The template produces a native Android application, not a web application embedd
 
 ## Runtime
 
-MainActivity enables edge-to-edge rendering and sets the Compose content. App defines a Material 3 color scheme following the system theme, a scaffold and two sample destinations: Home and Settings. The sample counter uses saveable state.
+MainActivity enables edge-to-edge rendering and sets the Compose content. App defines a Material 3 color scheme following the system theme, a responsive navigation shell and three sample destinations: Home, Settings and About. The sample counter uses saveable state.
+
+The navigation shell selects a bottom bar plus modal drawer below 600 dp, a persistent rail from 600 dp, and an expanded permanent drawer from 840 dp (or a landscape window at least 600 dp wide). The expanded drawer can collapse to a rail and reopen. All destinations share the same saveable state. Navigation components use Material 3, grouped drawer sections and a replaceable vector logo.
 
 The sample demonstrates navigation and state preservation. Replace it with application-specific functionality rather than treating the counter as a required subsystem.
 

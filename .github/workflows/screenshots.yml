@@ -8,6 +8,8 @@ on:
       - 'template/scripts/screenshots.sh.jinja'
       - 'template/scripts/validate-screenshots.py'
       - 'template/app/src/androidTest/**'
+      - 'template/app/src/main/**'
+      - 'template/app/build.gradle.kts.jinja'
 permissions:
   contents: read
 concurrency:

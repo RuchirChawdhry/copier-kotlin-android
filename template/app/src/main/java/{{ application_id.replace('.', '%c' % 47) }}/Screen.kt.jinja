@@ -1,0 +1,13 @@
+package {{ application_id }}
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.graphics.vector.ImageVector
+
+internal enum class Screen(val label: Int, val icon: ImageVector) {
+    HOME(R.string.home, Icons.Filled.Home),
+    SETTINGS(R.string.settings, Icons.Filled.Settings),
+    ABOUT(R.string.about, Icons.Filled.Info),
+}

@@ -3,9 +3,21 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 app_id='{{ application_id }}'
 runner="$app_id.test/androidx.test.runner.AndroidJUnitRunner"
+if [[ "$(adb shell getprop ro.kernel.qemu | tr -d '\r')" != 1 ]]; then
+    echo 'Use an Android emulator: screenshot capture temporarily changes display metrics.' >&2
+    exit 1
+fi
 temp=$(mktemp -d "$PWD/.screenshots.XXXXXX")
 original=$(adb shell cmd uimode night | tr -d '\r' | awk '{print $NF}')
+size=$(adb shell wm size | tr -d '\r' | sed -n 's/^Override size: //p')
+density=$(adb shell wm density | tr -d '\r' | sed -n 's/^Override density: //p')
+rotation=$(adb shell settings get system user_rotation | tr -d '\r')
+auto_rotation=$(adb shell settings get system accelerometer_rotation | tr -d '\r')
 cleanup() {
+    adb shell wm size "${size:-reset}" >/dev/null 2>&1 || true
+    adb shell wm density "${density:-reset}" >/dev/null 2>&1 || true
+    adb shell settings put system user_rotation "$rotation" >/dev/null 2>&1 || true
+    adb shell settings put system accelerometer_rotation "$auto_rotation" >/dev/null 2>&1 || true
     adb shell cmd uimode night "$original" >/dev/null 2>&1 || true
     if [[ -d "$temp" && "${ANDROID_CI_MODE:-}" == screenshots ]]; then
         mkdir -p reports
@@ -17,30 +29,55 @@ cleanup() {
 trap cleanup EXIT
 mkdir -p reports
 
-# Install once. Gradle connected tests uninstall the APKs before returning.
+# Keep APKs installed until all screenshots have been retrieved.
 ./gradlew :app:installDebug :app:installDebugAndroidTest
 adb shell pm path "$app_id"
 adb shell pm list instrumentation | grep -F "instrumentation:$runner "
 adb shell -T run-as "$app_id" mkdir -p files/screenshots
+adb shell settings put system accelerometer_rotation 0
+adb shell settings put system user_rotation 0
+
+configure_display() {
+    case "$1" in
+        phone) adb shell wm size 1080x1920; adb shell wm density 440 ;;
+        rail) adb shell wm size 1200x1800; adb shell wm density 280 ;;
+        wide) adb shell wm size 1600x2000; adb shell wm density 280 ;;
+        landscape) adb shell wm size 1080x1920; adb shell wm density 440 ;;
+    esac
+    local orientation=0
+    [[ "$1" != landscape ]] || orientation=1
+    adb shell settings put system user_rotation "$orientation"
+}
+capture_layout() {
+    local theme=$1 layout=$2
+    local names
+    names=$(python3 scripts/validate-screenshots.py --names "$layout")
+    read -r -a screens <<< "$names"
+    adb shell am force-stop "$app_id"
+    configure_display "$layout"
+    for screen in "${screens[@]}"; do
+        adb shell -T run-as "$app_id" rm -f "files/screenshots/$theme-$screen.png"
+    done
+    adb shell -T am instrument -w -r \
+        -e class "$app_id.NavigationTest" \
+        -e captureTheme "$theme" -e captureLayout "$layout" "$runner" \
+        | tee "reports/instrumentation-$theme-$layout.txt"
+    grep -Eq '^OK \(1 test\)[[:space:]]*$' "reports/instrumentation-$theme-$layout.txt"
+    grep -Eq '^INSTRUMENTATION_CODE: -1[[:space:]]*$' "reports/instrumentation-$theme-$layout.txt"
+    for screen in "${screens[@]}"; do
+        adb shell -T run-as "$app_id" cat "files/screenshots/$theme-$screen.png" \
+            > "$temp/$theme-$screen.png"
+        test -s "$temp/$theme-$screen.png"
+    done
+}
 for theme in light dark; do
     case "$theme" in
         light) night=no ;;
         dark) night=yes ;;
     esac
-    adb shell am force-stop "$app_id"
     adb shell cmd uimode night "$night"
-    for screen in home settings; do
-        adb shell -T run-as "$app_id" rm -f "files/screenshots/$theme-$screen.png"
-    done
-    adb shell -T am instrument -w -r \
-        -e class "$app_id.NavigationTest" \
-        -e captureTheme "$theme" "$runner" | tee "reports/instrumentation-$theme.txt"
-    grep -Eq '^OK \(1 test\)[[:space:]]*$' "reports/instrumentation-$theme.txt"
-    grep -Eq '^INSTRUMENTATION_CODE: -1[[:space:]]*$' "reports/instrumentation-$theme.txt"
-    for screen in home settings; do
-        adb shell -T run-as "$app_id" cat "files/screenshots/$theme-$screen.png" \
-            > "$temp/$theme-$screen.png"
-        test -s "$temp/$theme-$screen.png"
+    for layout in phone rail wide landscape; do
+        capture_layout "$theme" "$layout"
     done
 done
 python3 scripts/validate-screenshots.py "$temp"

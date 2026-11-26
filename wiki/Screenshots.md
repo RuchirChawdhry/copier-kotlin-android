@@ -1,28 +1,29 @@
 # Screenshots
 
-Capture real Android application screens on an emulator using Android's instrumentation screenshot API. Each capture verifies the system theme before saving the image.
+Capture actual Android emulator screens with the native Android instrumentation screenshot API.
 
 ## Local capture
 
-Start one emulator or connect one device, then run:
+Start one Android emulator, then run:
 
 ```sh
 task screenshots
 ```
 
-The script installs the debug and instrumentation APKs once, runs the navigation test through ADB in each theme and encodes PNG files explicitly and transfers them from the debug app's private storage through ADB's non-PTY shell. The complete capture set is validated before replacing the previous directory. It attempts to restore the original system theme on exit. The debug and test APKs remain installed so the private capture files can be retrieved before publication.
+The script temporarily changes the emulator's display metrics to exercise real responsive layouts. It restores the original metrics, rotation settings and night mode on exit. Both debug and instrumentation APKs remain installed. A physical device is intentionally not supported by this resizing script.
 
 ## Screenshot gallery
 
-All published PNG files live directly in the repository's root screenshots directory:
+Each layout is captured in light and dark mode:
 
-```text
-screenshots/
-├── dark-home.png
-├── dark-settings.png
-├── light-home.png
-└── light-settings.png
-```
+| Layout | Screens |
+| --- | --- |
+| Phone | Home, open navigation drawer, Settings, About |
+| Medium tablet | Persistent navigation rail |
+| Expanded tablet | Expanded sidebar, collapsed sidebar |
+| Landscape phone | Expanded sidebar, collapsed sidebar |
+
+The 18 PNGs are stored directly under the root screenshots/ directory. Filenames use the theme, layout and screen, for example dark-phone-drawer.png and light-wide-collapsed.png.
 
 Browse [repository screenshots](https://github.com/RuchirChawdhry/copier-kotlin-android/tree/main/screenshots).
 
@@ -30,8 +31,8 @@ Browse [repository screenshots](https://github.com/RuchirChawdhry/copier-kotlin-
 
 Open [Android UI screenshots](https://github.com/RuchirChawdhry/copier-kotlin-android/actions/workflows/screenshots.yml) and select Run workflow on the default branch.
 
-The capture job generates a fresh app, builds the debug and test APKs, starts a hardware-accelerated Android emulator, and captures both themes. The publication job verifies the entire dedicated PNG artifact, replaces the root screenshots directory and commits only changed files. Failed captures preserve the existing gallery. The template repository also runs capture when its screenshot workflow file changes.
+The capture job generates a fresh app, builds the debug and test APKs, starts a hardware-accelerated Android emulator and exercises all four viewport configurations in both themes. Instrumentation asserts the active layout, selected destinations and preservation of the counter state. Each PNG is validated before publication. Failed captures preserve the previous gallery and retain diagnostic artifacts.
 
-When adding a screen, add a navigation assertion, a stable filename and update the capture and publication manifests. Ordinary UI tests do not write screenshots unless capture mode is explicitly requested.
+The publication job replaces the complete screenshot directory. The screenshot manifest lives in scripts/validate-screenshots.py. Update it and the instrumentation test when adding screens.
 
 See [Testing and CI](Testing-and-CI).
