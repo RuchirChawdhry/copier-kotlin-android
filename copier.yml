@@ -1,0 +1,14 @@
+_min_copier_version: "9.10.3"
+_subdirectory: template
+_templates_suffix: .jinja
+project_name:
+  type: str
+  default: Android App
+  validator: >-
+    {% if not (project_name | regex_search('^[A-Za-z][A-Za-z0-9 _-]{0,63}$')) %}Use a name of 1–64 letters, digits, spaces, underscores or hyphens.{% endif %}
+application_id:
+  type: str
+  default: com.example.androidapp
+  validator: >-
+    {% if not (application_id | regex_search('^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$')) %}Use a lowercase reverse-domain application ID.{% endif %}
+

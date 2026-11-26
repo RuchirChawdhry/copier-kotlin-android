@@ -1,0 +1,32 @@
+name: Android screenshots
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  capture:
+    uses: RuchirChawdhry/ci-workflows/.github/workflows/kotlin-android.yml@main
+    with:
+      template: false
+      mode: screenshots
+  publish:
+    needs: capture
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-api-35-screenshots
+          path: capture
+      - name: Replace screenshots
+        run: |
+          test -s capture/screenshots/light/home.png
+          test -s capture/screenshots/dark/settings.png
+          rm -rf screenshots
+          mv capture/screenshots screenshots
+          git add -A screenshots
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --quiet || git commit -m 'Refresh Android screenshots'
+          git push
+

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+temp=$(mktemp -d)
+original=$(adb shell cmd uimode night | tr -d '\r' | awk '{print $NF}')
+cleanup() {
+    adb shell cmd uimode night "$original" >/dev/null 2>&1 || true
+    rm -rf "$temp"
+}
+trap cleanup EXIT
+for mode in light dark; do
+    night=no
+    [[ "$mode" == dark ]] && night=yes
+    adb shell cmd uimode night "$night"
+    ./gradlew :app:connectedDebugAndroidTest
+    mkdir -p "$temp/$mode"
+    adb pull /sdcard/Android/data/{{ application_id }}/files/screenshots/. "$temp/$mode/"
+    test -s "$temp/$mode/home.png"
+    test -s "$temp/$mode/settings.png"
+done
+rm -rf screenshots
+mv "$temp" screenshots
+

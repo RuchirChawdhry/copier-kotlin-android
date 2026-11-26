@@ -1,0 +1,54 @@
+version: '3'
+tasks:
+  setup:
+    cmds:
+      - sdkmanager 'platforms;android-35' 'build-tools;35.0.0' platform-tools emulator
+      - git config core.hooksPath .githooks
+      - chmod +x gradlew .githooks/pre-commit
+      - ./gradlew --version
+  fix:
+    cmd: ./gradlew ktlintFormat
+  check:
+    cmd: ./gradlew ktlintCheck detekt lintDebug
+  test:
+    cmd: ./gradlew testDebugUnitTest
+  build:
+    cmd: ./gradlew assembleDebug
+  release:
+    cmd: ./gradlew assembleRelease bundleRelease
+  emulator:
+    desc: Start an existing AVD using ANDROID_AVD_NAME.
+    cmd: emulator -avd "${ANDROID_AVD_NAME:?Set ANDROID_AVD_NAME}"
+  install:
+    cmd: ./gradlew :app:installDebug
+  run:
+    cmds:
+      - task: install
+      - adb shell am start -n {{ application_id }}/.MainActivity
+  test:ui:
+    cmd: ./gradlew connectedDebugAndroidTest
+  screenshots:
+    cmd: bash scripts/screenshots.sh
+  logs:
+    cmd: adb logcat -d
+  benchmark:
+    cmd: bash scripts/benchmark.sh device
+  benchmark:startup:
+    cmd: bash scripts/benchmark.sh device
+  benchmark:memory:
+    cmd: bash scripts/benchmark.sh memory
+  benchmark:scroll:
+    cmd: bash scripts/benchmark.sh frames
+  benchmark:size:
+    cmd: bash scripts/benchmark.sh size
+  benchmark:profile:
+    cmd: bash scripts/benchmark.sh profile
+  benchmark:report:
+    cmd: ls -R reports benchmark/build/outputs
+  test:all:
+    cmds:
+      - task: check
+      - task: test
+      - task: build
+      - task: test:ui
+

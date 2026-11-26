@@ -1,0 +1,16 @@
+name: Android compatibility
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  devices:
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [26, 35]
+    uses: RuchirChawdhry/ci-workflows/.github/workflows/kotlin-android.yml@main
+    with:
+      template: false
+      api: ${{ matrix.api }}
+

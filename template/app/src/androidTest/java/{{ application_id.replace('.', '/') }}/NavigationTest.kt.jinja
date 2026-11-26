@@ -1,0 +1,38 @@
+package {{ application_id }}
+
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import java.io.File
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+
+class NavigationTest {
+    @get:Rule
+    val compose = createAndroidComposeRule<MainActivity>()
+
+    @Test
+    fun navigatesAndPreservesState() {
+        capture("home")
+        compose.onNodeWithTag("increment").performClick()
+        compose.onNodeWithTag("counter").assertTextEquals("Count: 1")
+        compose.onNodeWithTag("SETTINGS").performClick()
+        compose.onNodeWithTag("settings").assertExists()
+        capture("settings")
+        compose.onNodeWithTag("HOME").performClick()
+        compose.onNodeWithTag("counter").assertTextEquals("Count: 1")
+    }
+
+    private fun capture(name: String) {
+        compose.waitForIdle()
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val directory = File(instrumentation.targetContext.getExternalFilesDir(null), "screenshots")
+        directory.mkdirs()
+        assertTrue(UiDevice.getInstance(instrumentation).takeScreenshot(File(directory, "$name.png")))
+    }
+}
+

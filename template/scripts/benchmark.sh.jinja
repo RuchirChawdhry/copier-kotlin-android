@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+mkdir -p reports
+case "${1:-device}" in
+    size)
+        ./gradlew :app:assembleRelease
+        find app/build/outputs/apk/release -name '*.apk' -printf '%f %s bytes\n' | tee reports/apk-size.txt
+        ;;
+    memory)
+        adb shell dumpsys meminfo {{ application_id }} | tee reports/memory.txt
+        ;;
+    frames)
+        adb shell dumpsys gfxinfo {{ application_id }} | tee reports/frames.txt
+        ;;
+    device)
+        ./gradlew :benchmark:connectedBenchmarkReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=Macrobenchmark
+        ;;
+    profile)
+        ./gradlew :app:generateBaselineProfile
+        ;;
+    *) echo 'Use size, memory, frames, device or profile' >&2; exit 2 ;;
+esac
+
