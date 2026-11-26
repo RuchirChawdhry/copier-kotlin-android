@@ -11,4 +11,23 @@ application_id:
   default: com.example.androidapp
   validator: >-
     {% if not (application_id | regex_search('^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$')) %}Use a lowercase reverse-domain application ID.{% endif %}
-
+include_robolectric:
+  type: bool
+  default: false
+  help: Include Android JVM simulation tests?
+include_http:
+  type: bool
+  default: false
+  help: Include an OkHttp client and Internet permission?
+include_background_jobs:
+  type: bool
+  default: false
+  help: Include WorkManager and a sample background job?
+include_file_access:
+  type: bool
+  default: false
+  help: Include a Storage Access Framework document picker?
+include_notifications:
+  type: bool
+  default: false
+  help: Include notification channel and runtime permission example?

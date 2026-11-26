@@ -1,51 +1,67 @@
 version: '3'
 tasks:
+  bootstrap:
+    cmd: bash scripts/bootstrap.sh
   setup:
+    cmd: bash scripts/setup.sh
+  doctor:
+    cmd: bash scripts/dev.sh python3 scripts/doctor.py
+  doctor:json:
+    cmd: bash scripts/dev.sh python3 scripts/doctor.py
+  dev:
     cmds:
-      - sdkmanager 'platforms;android-35' 'build-tools;35.0.0' platform-tools emulator
-      - git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init
-      - chmod +x gradlew
-      - ./gradlew addKtlintFormatGitPreCommitHook
-      - ./gradlew --version
+      - task: emulator:start
+      - task: run
   fix:
-    cmd: ./gradlew ktlintFormat
+    cmd: bash scripts/dev.sh ./gradlew ktlintFormat
   check:
-    cmd: ./gradlew ktlintCheck detekt lintDebug
+    cmd: bash scripts/dev.sh ./gradlew ktlintCheck detekt lintDebug
+  test:tooling:
+    cmd: python3 scripts/test-tooling.py
   test:
-    cmd: ./gradlew testDebugUnitTest
+    cmd: bash scripts/dev.sh ./gradlew testDebugUnitTest
   build:
-    cmd: ./gradlew assembleDebug
+    cmd: bash scripts/dev.sh ./gradlew assembleDebug
   release:
-    cmd: ./gradlew assembleRelease bundleRelease
+    cmd: bash scripts/dev.sh ./gradlew assembleRelease bundleRelease
   emulator:
-    desc: Start an existing AVD using ANDROID_AVD_NAME.
-    cmd: emulator -avd "${ANDROID_AVD_NAME:?Set ANDROID_AVD_NAME}"
+    cmd: bash scripts/emulator.sh start
+  emulator:create:
+    cmd: bash scripts/emulator.sh create
+  emulator:start:
+    cmd: bash scripts/emulator.sh start
+  emulator:stop:
+    cmd: bash scripts/emulator.sh stop
+  emulator:status:
+    cmd: bash scripts/emulator.sh status
+  emulator:reset:
+    cmd: bash scripts/emulator.sh reset
   install:
-    cmd: ./gradlew :app:installDebug
+    cmd: bash scripts/dev.sh ./gradlew :app:installDebug
   run:
     cmds:
       - task: install
-      - adb shell am start -n {{ application_id }}/.MainActivity
+      - bash scripts/dev.sh adb shell am start -n {{ application_id }}/.MainActivity
   test:ui:
-    cmd: ./gradlew connectedDebugAndroidTest
+    cmd: bash scripts/dev.sh ./gradlew connectedDebugAndroidTest
   screenshots:
-    cmd: bash scripts/screenshots.sh
+    cmd: bash scripts/dev.sh bash scripts/screenshots.sh
   logs:
-    cmd: adb logcat -d
+    cmd: bash scripts/dev.sh adb logcat -d
   benchmark:
-    cmd: bash scripts/benchmark.sh device
+    cmd: bash scripts/dev.sh bash scripts/benchmark.sh device
   benchmark:startup:
-    cmd: bash scripts/benchmark.sh device
+    cmd: bash scripts/dev.sh bash scripts/benchmark.sh device
   benchmark:memory:
-    cmd: bash scripts/benchmark.sh memory
+    cmd: bash scripts/dev.sh bash scripts/benchmark.sh memory
   benchmark:scroll:
-    cmd: bash scripts/benchmark.sh frames
+    cmd: bash scripts/dev.sh bash scripts/benchmark.sh frames
   benchmark:size:
-    cmd: bash scripts/benchmark.sh size
+    cmd: bash scripts/dev.sh bash scripts/benchmark.sh size
   benchmark:profile:
-    cmd: bash scripts/benchmark.sh profile
+    cmd: bash scripts/dev.sh bash scripts/benchmark.sh profile
   benchmark:report:
-    cmd: ls -R reports benchmark/build/outputs
+    cmd: bash scripts/dev.sh bash scripts/benchmark.sh report
   test:all:
     cmds:
       - task: check
@@ -53,3 +69,29 @@ tasks:
       - task: build
       - task: test:ui
 
+  device:list:
+    cmd: bash scripts/dev.sh python3 scripts/device.py list {{ '{{.CLI_ARGS}}' }}
+  device:info:
+    cmd: bash scripts/dev.sh python3 scripts/device.py info {{ '{{.CLI_ARGS}}' }}
+  device:inspect:
+    cmd: bash scripts/dev.sh python3 scripts/device.py inspect {{ '{{.CLI_ARGS}}' }}
+  device:screenshot:
+    cmd: bash scripts/dev.sh python3 scripts/device.py screenshot {{ '{{.CLI_ARGS}}' }}
+  device:tap:
+    cmd: bash scripts/dev.sh python3 scripts/device.py tap {{ '{{.CLI_ARGS}}' }}
+  device:type:
+    cmd: bash scripts/dev.sh python3 scripts/device.py type {{ '{{.CLI_ARGS}}' }}
+  device:back:
+    cmd: bash scripts/dev.sh python3 scripts/device.py back {{ '{{.CLI_ARGS}}' }}
+  device:home:
+    cmd: bash scripts/dev.sh python3 scripts/device.py home {{ '{{.CLI_ARGS}}' }}
+  device:permissions:
+    cmd: bash scripts/dev.sh python3 scripts/device.py permissions {{ '{{.CLI_ARGS}}' }}
+  device:crashes:
+    cmd: bash scripts/dev.sh python3 scripts/device.py crashes {{ '{{.CLI_ARGS}}' }}
+  device:restart:
+    cmd: bash scripts/dev.sh python3 scripts/device.py restart {{ '{{.CLI_ARGS}}' }}
+  device:clear:
+    cmd: bash scripts/dev.sh python3 scripts/device.py clear {{ '{{.CLI_ARGS}}' }}
+  device:theme:
+    cmd: bash scripts/dev.sh python3 scripts/device.py theme {{ '{{.CLI_ARGS}}' }}

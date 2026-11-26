@@ -1,0 +1,29 @@
+package {{ application_id }}
+
+import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class SettingsStoreTest {
+    @Test
+    fun preferencesPersistAndReset() = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val store = SettingsStore(context)
+        try {
+            store.setTheme(ThemeMode.AMOLED)
+            store.setDynamicColors(false)
+            val reopened = SettingsStore(context)
+            assertEquals(ThemeMode.AMOLED, reopened.theme.first())
+            assertFalse(reopened.dynamicColors.first())
+            reopened.reset()
+            assertEquals(ThemeMode.SYSTEM, store.theme.first())
+            assertTrue(store.dynamicColors.first())
+        } finally {
+            store.reset()
+        }
+    }
+}

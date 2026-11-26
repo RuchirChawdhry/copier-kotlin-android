@@ -1,0 +1,90 @@
+"""ADB automation for the generated application. JSON output, nonzero on failure."""
+import argparse
+import json
+import os
+import pathlib
+import subprocess
+import xml.etree.ElementTree as ET
+
+APP = "{{ application_id }}"
+
+
+def adb(*args, binary=False):
+    command = ["adb"]
+    serial = os.environ.get("ANDROID_SERIAL")
+    if serial:
+        command += ["-s", serial]
+    return subprocess.check_output(command + list(args), text=not binary)
+
+
+def hierarchy():
+    adb("shell", "uiautomator", "dump", "/sdcard/window.xml")
+    root = ET.fromstring(adb("shell", "cat", "/sdcard/window.xml"))
+    return [node.attrib for node in root.iter("node")]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=[
+        "list", "info", "inspect", "screenshot", "tap", "type", "back", "home",
+        "permissions", "crashes", "restart", "clear", "theme",
+    ])
+    parser.add_argument("--confirm", action="store_true")
+    parser.add_argument("args", nargs="*")
+    a = parser.parse_args()
+    match a.command:
+        case "list":
+            result = [line.split() for line in adb("devices", "-l").splitlines()[1:] if line.strip()]
+        case "info":
+            result = {k: adb("shell", "getprop", k).strip() for k in (
+                "ro.product.model", "ro.build.version.sdk", "ro.product.cpu.abi",
+            )}
+            result["size"] = adb("shell", "wm", "size").strip()
+        case "inspect":
+            result = hierarchy()
+        case "screenshot":
+            path = pathlib.Path(a.args[0] if a.args else "reports/device.png")
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(adb("exec-out", "screencap", "-p", binary=True))
+            result = str(path)
+        case "tap":
+            if len(a.args) == 1:
+                import re
+                matches = [n for n in hierarchy() if a.args[0] in (
+                    n.get("resource-id"), n.get("text"), n.get("content-desc"),
+                )]
+                if len(matches) != 1:
+                    parser.error("Element identifier must match exactly one node")
+                x1, y1, x2, y2 = map(int, re.findall(r"\d+", matches[0]["bounds"]))
+                a.args = [str((x1+x2)//2), str((y1+y2)//2)]
+            x, y = map(int, a.args)
+            result = adb("shell", "input", "tap", str(x), str(y))
+        case "type":
+            import shlex
+            result = adb("shell", "input", "text", shlex.quote(" ".join(a.args).replace(" ", "%s")))
+        case "back" | "home":
+            result = adb("shell", "input", "keyevent", "4" if a.command == "back" else "3")
+        case "permissions":
+            result = adb("shell", "dumpsys", "package", APP)
+        case "crashes":
+            result = adb("logcat", "-b", "crash", "-d")
+        case "restart":
+            adb("shell", "am", "force-stop", APP)
+            result = adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity")
+        case "clear":
+            if not a.confirm:
+                parser.error("Use clear --confirm to delete application data")
+            result = adb("shell", "pm", "clear", APP)
+        case "theme":
+            if a.args not in (["yes"], ["no"], ["auto"]):
+                parser.error("Use theme yes, no or auto")
+            result = adb("shell", "cmd", "uimode", "night", a.args[0])
+    print(json.dumps({"ok": True, "result": result}, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (subprocess.CalledProcessError, ValueError, OSError) as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}))
+        raise SystemExit(1) from exc

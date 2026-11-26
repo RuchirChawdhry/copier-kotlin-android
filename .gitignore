@@ -8,4 +8,4 @@ local.properties
 *.keystore
 *.jar
 !template/gradle/wrapper/gradle-wrapper.jar
-
+optional/

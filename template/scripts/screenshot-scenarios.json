@@ -1,0 +1,45 @@
+{
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "layouts": {
+    "phone": {
+      "size": "1080x1920",
+      "density": 440,
+      "rotation": 0,
+      "screens": [
+        "home",
+        "drawer",
+        "settings",
+        "about"
+      ]
+    },
+    "rail": {
+      "size": "1200x1800",
+      "density": 280,
+      "rotation": 0,
+      "screens": [
+        "home"
+      ]
+    },
+    "wide": {
+      "size": "1600x2000",
+      "density": 280,
+      "rotation": 0,
+      "screens": [
+        "home",
+        "collapsed"
+      ]
+    },
+    "landscape": {
+      "size": "1080x1920",
+      "density": 440,
+      "rotation": 1,
+      "screens": [
+        "home",
+        "collapsed"
+      ]
+    }
+  }
+}

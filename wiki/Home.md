@@ -20,6 +20,7 @@ uvx --from copier==9.19.1 copier copy gh:RuchirChawdhry/copier-kotlin-android my
 - [Getting started](Getting-Started): generate and build an application.
 - [Architecture](Architecture): understand the application and benchmark modules.
 - [Configuration](Configuration): template inputs and pinned Android toolchain.
+- [Productivity toolkit](Productivity)
 - [Development](Development): commands and agent workflow.
 - [Testing and CI](Testing-and-CI): unit tests, lint and emulator checks.
 - [Performance](Performance): measure startup, memory, frames and size.

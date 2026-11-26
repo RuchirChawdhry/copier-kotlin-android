@@ -1,21 +1,18 @@
 """Validate the exact screenshot set and the integrity of PNG chunks."""
 
+import json
 import pathlib
 import struct
 import sys
 import zlib
 
-LAYOUTS = {
-    "phone": ("phone-home", "phone-drawer", "phone-settings", "phone-about"),
-    "rail": ("rail-home",),
-    "wide": ("wide-home", "wide-collapsed"),
-    "landscape": ("landscape-home", "landscape-collapsed"),
-}
+MANIFEST = json.loads(pathlib.Path(__file__).with_name("screenshot-scenarios.json").read_text())
+LAYOUTS = MANIFEST["layouts"]
 EXPECTED = {
-    f"{theme}-{screen}.png"
-    for theme in ("light", "dark")
-    for screens in LAYOUTS.values()
-    for screen in screens
+    f"{theme}-{layout}-{screen}.png"
+    for theme in MANIFEST["themes"]
+    for layout, spec in LAYOUTS.items()
+    for screen in spec["screens"]
 }
 SIGNATURE = bytes.fromhex("89504e470d0a1a0a")
 
@@ -56,7 +53,18 @@ def validate_png(path):
 
 def main():
     if len(sys.argv) == 3 and sys.argv[1] == "--names":
-        print(" ".join(LAYOUTS[sys.argv[2]]))
+        layout = sys.argv[2]
+        print(" ".join(f"{layout}-{screen}" for screen in LAYOUTS[layout]["screens"]))
+        return
+    if sys.argv[1] == "--layouts":
+        print(" ".join(LAYOUTS))
+        return
+    if sys.argv[1] == "--themes":
+        print(" ".join(MANIFEST["themes"]))
+        return
+    if sys.argv[1] == "--display":
+        spec = LAYOUTS[sys.argv[2]]
+        print(spec["size"], spec["density"], spec["rotation"])
         return
     root = pathlib.Path(sys.argv[1])
     actual = {p.name for p in root.iterdir()}

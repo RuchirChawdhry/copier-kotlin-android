@@ -21,7 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           name: android-ui-screenshots
@@ -29,6 +30,11 @@ jobs:
       - name: Validate and replace screenshot set
         run: |
           python3 scripts/validate-screenshots.py capture
+          # Do not publish captures made against changed application sources.
+          if ! git diff --quiet "$GITHUB_SHA" HEAD -- app scripts gradle build.gradle.kts settings.gradle.kts gradle.properties; then
+            echo '::error::Application sources changed during capture; regenerate screenshots.'
+            exit 1
+          fi
           rm -rf screenshots
           mv capture screenshots
           git add -A -- screenshots

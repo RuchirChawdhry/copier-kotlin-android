@@ -1,0 +1,54 @@
+package {{ application_id }}
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+
+@Composable
+internal fun SettingsScreen(store: SettingsStore, theme: ThemeMode, dynamic: Boolean) {
+    val scope = rememberCoroutineScope()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .testTag("settings"),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text("Appearance", style = MaterialTheme.typography.titleLarge)
+        ThemeMode.entries.forEach { mode ->
+            FilterChip(
+                selected = mode == theme,
+                onClick = { scope.launch { store.setTheme(mode) } },
+                label = { Text(mode.label) },
+                modifier = Modifier.testTag("theme-${mode.name}"),
+            )
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Dynamic system colors", Modifier.weight(1f))
+            Switch(
+                checked = dynamic,
+                onCheckedChange = { scope.launch { store.setDynamicColors(it) } },
+                modifier = Modifier.testTag("dynamic-colors"),
+            )
+        }
+        Text("The system theme is the default.")
+        Button(onClick = { scope.launch { store.reset() } }) {
+            Text("Reset preferences")
+        }
+    }
+}

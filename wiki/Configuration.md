@@ -25,6 +25,6 @@ The template stores its answers for future Copier updates. The full update lifec
 
 These are the configured versions, not a claim that they are the latest or that the target meets current Google Play submission policy. The benchmark module requires API 28 or above.
 
-Build plugin versions live in the root build.gradle.kts; application SDK and dependency versions live in app/build.gradle.kts.
+Dependency and plugin versions live in gradle/libs.versions.toml. SDK values live in gradle.properties. Optional capabilities are described in [Productivity toolkit](Productivity).
 
 Do not commit local.properties, keystores or signing credentials. See [Release and distribution](Release-and-Distribution).

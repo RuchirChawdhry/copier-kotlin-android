@@ -7,3 +7,6 @@ reports/
 *.jks
 *.keystore
 
+
+.screenshots.*/
+__pycache__/

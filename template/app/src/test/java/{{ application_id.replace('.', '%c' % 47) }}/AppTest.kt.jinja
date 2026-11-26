@@ -1,3 +1,4 @@
+{% if include_robolectric %}
 package {{ application_id }}
 
 import android.content.Context
@@ -17,3 +18,16 @@ class AppTest {
         assertEquals("{{ project_name }}", context.getString(R.string.app_name))
     }
 }
+{% else %}
+package {{ application_id }}
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class AppTest {
+    @Test
+    fun defaultThemeFollowsSystem() {
+        assertEquals("SYSTEM", ThemeMode.SYSTEM.name)
+    }
+}
+{% endif %}

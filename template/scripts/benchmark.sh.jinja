@@ -1,24 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-mkdir -p reports
+mkdir -p reports/performance
 case "${1:-device}" in
     size)
         ./gradlew :app:assembleRelease
-        find app/build/outputs/apk/release -name '*.apk' -printf '%f %s bytes\n' | tee reports/apk-size.txt
+        find app/build/outputs/apk/release -name '*.apk' -printf '%f %s bytes\n' | tee reports/performance/apk-size.txt
         ;;
     memory)
-        adb shell dumpsys meminfo {{ application_id }} | tee reports/memory.txt
+        adb shell dumpsys meminfo {{ application_id }} | tee reports/performance/memory.txt
         ;;
     frames)
-        adb shell dumpsys gfxinfo {{ application_id }} | tee reports/frames.txt
+        adb shell dumpsys gfxinfo {{ application_id }} | tee reports/performance/frames.txt
         ;;
     device)
         ./gradlew :benchmark:connectedBenchmarkReleaseAndroidTest -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=Macrobenchmark
         ;;
+    report)
+        python3 scripts/performance-report.py
+        ;;
     profile)
         ./gradlew :app:generateBaselineProfile
         ;;
-    *) echo 'Use size, memory, frames, device or profile' >&2; exit 2 ;;
+    *) echo 'Use size, memory, frames, device, profile or report' >&2; exit 2 ;;
 esac
-

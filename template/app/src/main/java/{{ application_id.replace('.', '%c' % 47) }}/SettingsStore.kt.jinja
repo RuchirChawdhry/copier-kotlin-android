@@ -1,0 +1,32 @@
+package {{ application_id }}
+
+import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.map
+
+private val Context.settingsDataStore by preferencesDataStore(name = "settings")
+
+internal class SettingsStore(context: Context) {
+    private val store = context.applicationContext.settingsDataStore
+    private val themeKey = stringPreferencesKey("theme")
+    private val dynamicKey = booleanPreferencesKey("dynamic_colors")
+    val theme = store.data.map { prefs ->
+        ThemeMode.entries.find { it.name == prefs[themeKey] } ?: ThemeMode.SYSTEM
+    }
+    val dynamicColors = store.data.map { it[dynamicKey] ?: true }
+
+    suspend fun setTheme(value: ThemeMode) {
+        store.edit { it[themeKey] = value.name }
+    }
+
+    suspend fun setDynamicColors(value: Boolean) {
+        store.edit { it[dynamicKey] = value }
+    }
+
+    suspend fun reset() {
+        store.edit { it.clear() }
+    }
+}

@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,7 +62,7 @@ internal fun AppRail(
             onExpand?.let { expand ->
                 IconButton(expand, Modifier.testTag("expand-sidebar")) {
                     Icon(
-                        Icons.Filled.KeyboardArrowRight,
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         stringResource(R.string.expand_navigation),
                     )
                 }
@@ -116,7 +116,7 @@ internal fun DrawerContents(
             onCollapse?.let { collapse ->
                 IconButton(collapse, Modifier.testTag("collapse-sidebar")) {
                     Icon(
-                        Icons.Filled.KeyboardArrowLeft,
+                        Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                         stringResource(R.string.collapse_navigation),
                     )
                 }

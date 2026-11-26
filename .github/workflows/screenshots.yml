@@ -7,6 +7,7 @@ on:
       - '.github/workflows/screenshots.yml'
       - 'template/scripts/screenshots.sh.jinja'
       - 'template/scripts/validate-screenshots.py'
+      - 'template/scripts/screenshot-scenarios.json'
       - 'template/app/src/androidTest/**'
       - 'template/app/src/main/**'
       - 'template/app/build.gradle.kts.jinja'
@@ -30,7 +31,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           name: android-ui-screenshots
@@ -38,6 +40,11 @@ jobs:
       - name: Validate and replace screenshot set
         run: |
           python3 template/scripts/validate-screenshots.py capture
+          # Do not publish captures made against changed application sources.
+          if ! git diff --quiet "$GITHUB_SHA" HEAD -- template copier.yml .github/workflows/screenshots.yml; then
+            echo '::error::Application sources changed during capture; regenerate screenshots.'
+            exit 1
+          fi
           rm -rf screenshots
           mv capture screenshots
           git add -A -- screenshots

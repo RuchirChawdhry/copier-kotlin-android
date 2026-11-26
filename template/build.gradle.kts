@@ -1,11 +1,11 @@
 plugins {
-    id("com.android.application") version "8.9.2" apply false
-    id("com.android.test") version "8.9.2" apply false
-    id("org.jetbrains.kotlin.android") version "2.1.20" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.20" apply false
-    id("androidx.baselineprofile") version "1.3.4" apply false
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.baselineprofile) apply false
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
 }
 
 subprojects {

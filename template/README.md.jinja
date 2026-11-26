@@ -4,7 +4,7 @@ Native Android app with Kotlin and Jetpack Compose.
 
 Install JDK 17, Android SDK command-line tools, Git and Task. Set ANDROID_HOME and put sdkmanager, avdmanager, adb and emulator on PATH.
 
-Run `task setup`, `task check`, `task test`, `task build`.
+On Ubuntu, run `task bootstrap` to provision missing prerequisites and create an AVD (SDK license acceptance is interactive). Run `task doctor` and `task dev` to verify and launch. Use `task fix`, `task check`, `task test`, `task build` for the normal feedback loop. See AGENTS.md for device automation and reporting.
 
 For a local x86-64 emulator:
 
@@ -18,4 +18,3 @@ task emulator
 In another terminal, run `task run`, `task test:ui`, or `task screenshots`. Use a physical device for trustworthy benchmark measurements. `task benchmark:profile` generates startup profiles; `task benchmark` records cold startup and Perfetto traces. Memory and frame commands sample a running application, not controlled benchmarks. `task release` produces unsigned distribution artifacts. Use a signing configuration kept outside version control.
 
 CI checks formatting, lint, JVM tests, APK builds and instrumented navigation. The manual screenshot workflow replaces screenshots; compatibility runs API 26 and 35. Android SDK 35 is a pinned development baseline, not a promise of current Play Store eligibility.
-

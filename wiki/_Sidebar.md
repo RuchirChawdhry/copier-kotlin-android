@@ -4,6 +4,7 @@
 - [Getting started](Getting-Started)
 - [Architecture](Architecture)
 - [Configuration](Configuration)
+- [Productivity toolkit](Productivity)
 - [Development](Development)
 - [Testing and CI](Testing-and-CI)
 - [Performance](Performance)

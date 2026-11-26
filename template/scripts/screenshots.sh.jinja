@@ -17,6 +17,11 @@ cleanup() {
     adb shell wm size "${size:-reset}" >/dev/null 2>&1 || true
     adb shell wm density "${density:-reset}" >/dev/null 2>&1 || true
     adb shell settings put system user_rotation "$rotation" >/dev/null 2>&1 || true
+    if [[ "$auto_rotation" == 1 ]]; then
+        adb shell wm user-rotation free >/dev/null 2>&1 || true
+    else
+        adb shell wm user-rotation lock "$rotation" >/dev/null 2>&1 || true
+    fi
     adb shell settings put system accelerometer_rotation "$auto_rotation" >/dev/null 2>&1 || true
     adb shell cmd uimode night "$original" >/dev/null 2>&1 || true
     if [[ -d "$temp" && "${ANDROID_CI_MODE:-}" == screenshots ]]; then
@@ -38,15 +43,17 @@ adb shell settings put system accelerometer_rotation 0
 adb shell settings put system user_rotation 0
 
 configure_display() {
-    case "$1" in
-        phone) adb shell wm size 1080x1920; adb shell wm density 440 ;;
-        rail) adb shell wm size 1200x1800; adb shell wm density 280 ;;
-        wide) adb shell wm size 1600x2000; adb shell wm density 280 ;;
-        landscape) adb shell wm size 1080x1920; adb shell wm density 440 ;;
-    esac
-    local orientation=0
-    [[ "$1" != landscape ]] || orientation=1
-    adb shell settings put system user_rotation "$orientation"
+    local dimensions density rotation
+    read -r dimensions density rotation <<< "$(python3 scripts/validate-screenshots.py --display "$1")"
+    adb shell wm user-rotation lock 0
+    adb shell wm size "$dimensions"
+    adb shell wm density "$density"
+    adb shell wm user-rotation lock "$rotation"
+    # WindowManager applies rotation and density asynchronously.
+    sleep 3
+    adb shell wm size | grep -F "$dimensions"
+    adb shell wm density | grep -F "$density"
+    adb shell dumpsys window displays > "reports/display-$1.txt"
 }
 capture_layout() {
     local theme=$1 layout=$2
@@ -54,7 +61,7 @@ capture_layout() {
     names=$(python3 scripts/validate-screenshots.py --names "$layout")
     read -r -a screens <<< "$names"
     adb shell am force-stop "$app_id"
-    configure_display "$layout"
+    sleep 1
     for screen in "${screens[@]}"; do
         adb shell -T run-as "$app_id" rm -f "files/screenshots/$theme-$screen.png"
     done
@@ -70,13 +77,22 @@ capture_layout() {
         test -s "$temp/$theme-$screen.png"
     done
 }
-for theme in light dark; do
-    case "$theme" in
-        light) night=no ;;
-        dark) night=yes ;;
-    esac
-    adb shell cmd uimode night "$night"
-    for layout in phone rail wide landscape; do
+# Reset preferences to deterministic system-following theme on this dedicated emulator.
+if [[ "${ANDROID_CI_MODE:-}" == screenshots ]]; then
+    adb shell pm clear "$app_id"
+fi
+adb shell -T run-as "$app_id" mkdir -p files/screenshots
+read -r -a layouts <<< "$(python3 scripts/validate-screenshots.py --layouts)"
+read -r -a themes <<< "$(python3 scripts/validate-screenshots.py --themes)"
+for layout in "${layouts[@]}"; do
+    adb shell am force-stop "$app_id"
+    configure_display "$layout"
+    for theme in "${themes[@]}"; do
+        case "$theme" in
+            light) night=no ;;
+            dark) night=yes ;;
+        esac
+        adb shell cmd uimode night "$night"
         capture_layout "$theme" "$layout"
     done
 done
