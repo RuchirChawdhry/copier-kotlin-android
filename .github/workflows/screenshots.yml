@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/screenshots.yml'
+      - 'template/scripts/screenshots.sh.jinja'
+      - 'template/scripts/validate-screenshots.py'
+      - 'template/app/src/androidTest/**'
 permissions:
   contents: read
 concurrency:

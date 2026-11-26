@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 app_id='{{ application_id }}'
+runner="$app_id.test/androidx.test.runner.AndroidJUnitRunner"
 temp=$(mktemp -d "$PWD/.screenshots.XXXXXX")
 original=$(adb shell cmd uimode night | tr -d '\r' | awk '{print $NF}')
 cleanup() {
@@ -14,19 +15,32 @@ cleanup() {
     fi
 }
 trap cleanup EXIT
+mkdir -p reports
+
+# Install once. Gradle connected tests uninstall the APKs before returning.
+./gradlew :app:installDebug :app:installDebugAndroidTest
+adb shell pm path "$app_id"
+adb shell pm list instrumentation | grep -F "instrumentation:$runner "
+adb shell -T run-as "$app_id" mkdir -p files/screenshots
 for theme in light dark; do
     case "$theme" in
         light) night=no ;;
         dark) night=yes ;;
     esac
-    adb shell cmd uimode night "$night"
     adb shell am force-stop "$app_id"
-    ./gradlew :app:connectedDebugAndroidTest \
-        "-Pandroid.testInstrumentationRunnerArguments.class=$app_id.NavigationTest" \
-        "-Pandroid.testInstrumentationRunnerArguments.captureTheme=$theme"
+    adb shell cmd uimode night "$night"
+    for screen in home settings; do
+        adb shell -T run-as "$app_id" rm -f "files/screenshots/$theme-$screen.png"
+    done
+    adb shell -T am instrument -w -r \
+        -e class "$app_id.NavigationTest" \
+        -e captureTheme "$theme" "$runner" | tee "reports/instrumentation-$theme.txt"
+    grep -Eq '^OK \(1 test\)[[:space:]]*$' "reports/instrumentation-$theme.txt"
+    grep -Eq '^INSTRUMENTATION_CODE: -1[[:space:]]*$' "reports/instrumentation-$theme.txt"
     for screen in home settings; do
         adb shell -T run-as "$app_id" cat "files/screenshots/$theme-$screen.png" \
             > "$temp/$theme-$screen.png"
+        test -s "$temp/$theme-$screen.png"
     done
 done
 python3 scripts/validate-screenshots.py "$temp"

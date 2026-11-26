@@ -10,7 +10,7 @@ Start one emulator or connect one device, then run:
 task screenshots
 ```
 
-The script runs the navigation test in each theme and encodes PNG files explicitly and transfers them from the debug app's private storage through ADB's non-PTY shell. The complete capture set is validated before replacing the previous directory. It attempts to restore the original system theme on exit.
+The script installs the debug and instrumentation APKs once, runs the navigation test through ADB in each theme and encodes PNG files explicitly and transfers them from the debug app's private storage through ADB's non-PTY shell. The complete capture set is validated before replacing the previous directory. It attempts to restore the original system theme on exit. The debug and test APKs remain installed so the private capture files can be retrieved before publication.
 
 ## Screenshot gallery
 
