@@ -35,5 +35,3 @@ Kotlin, Jetpack Compose, AndroidX, Gradle Kotlin DSL, JUnit, Robolectric, UI Aut
 ---
 
 Android · [MIT License](https://github.com/RuchirChawdhry/copier-kotlin-android/blob/main/LICENSE) · [GitHub](https://github.com/RuchirChawdhry/copier-kotlin-android) · [Central workflows](https://github.com/RuchirChawdhry/ci-workflows)
-
-This documentation describes the current template implementation, not a certified working build. Check the [latest CI runs](https://github.com/RuchirChawdhry/copier-kotlin-android/actions) before adopting it.
