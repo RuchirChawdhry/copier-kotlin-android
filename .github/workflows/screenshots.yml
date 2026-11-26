@@ -1,8 +1,15 @@
-name: Android screenshots
+name: Android UI screenshots
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/screenshots.yml'
 permissions:
-  contents: write
+  contents: read
+concurrency:
+  group: android-screenshots-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   capture:
     uses: RuchirChawdhry/ci-workflows/.github/workflows/kotlin-android.yml@main
@@ -11,22 +18,37 @@ jobs:
       mode: screenshots
   publish:
     needs: capture
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: actions/download-artifact@v4
         with:
-          name: android-api-35-screenshots
+          name: android-ui-screenshots
           path: capture
-      - name: Replace screenshots
+      - name: Validate and replace screenshot set
         run: |
-          test -s capture/screenshots/light/home.png
-          test -s capture/screenshots/dark/settings.png
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("capture")
+          expected = {f"{theme}-{screen}.png" for theme in ("light", "dark") for screen in ("home", "settings")}
+          assert {p.name for p in root.iterdir()} == expected
+          for p in root.iterdir():
+              data = p.read_bytes()
+              assert data.startswith(b"\x89PNG\r\n\x1a\n") and data.endswith(b"IEND\xaeB`\x82"), p
+          PY
           rm -rf screenshots
-          mv capture/screenshots screenshots
-          git add -A screenshots
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git diff --cached --quiet || git commit -m 'Refresh Android screenshots'
-          git push
-
+          mv capture screenshots
+          git add -A -- screenshots
+          if git diff --cached --quiet; then
+            echo 'Screenshots have not changed.'
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m 'docs: refresh Android UI screenshots'
+          git push origin "HEAD:$GITHUB_REF"

@@ -1,23 +1,39 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-temp=$(mktemp -d)
+app_id='{{ application_id }}'
+temp=$(mktemp -d "$PWD/.screenshots.XXXXXX")
 original=$(adb shell cmd uimode night | tr -d '\r' | awk '{print $NF}')
 cleanup() {
     adb shell cmd uimode night "$original" >/dev/null 2>&1 || true
     rm -rf "$temp"
 }
 trap cleanup EXIT
-for mode in light dark; do
-    night=no
-    [[ "$mode" == dark ]] && night=yes
+for theme in light dark; do
+    case "$theme" in
+        light) night=no ;;
+        dark) night=yes ;;
+    esac
     adb shell cmd uimode night "$night"
-    ./gradlew :app:connectedDebugAndroidTest
-    mkdir -p "$temp/$mode"
-    adb pull /sdcard/Android/data/{{ application_id }}/files/screenshots/. "$temp/$mode/"
-    test -s "$temp/$mode/home.png"
-    test -s "$temp/$mode/settings.png"
+    adb shell am force-stop "$app_id"
+    ./gradlew :app:connectedDebugAndroidTest \
+        "-Pandroid.testInstrumentationRunnerArguments.class=$app_id.NavigationTest" \
+        "-Pandroid.testInstrumentationRunnerArguments.captureTheme=$theme"
+    for screen in home settings; do
+        adb exec-out run-as "$app_id" cat "files/screenshots/$theme-$screen.png" \
+            > "$temp/$theme-$screen.png"
+    done
 done
+python3 - "$temp" <<'PY'
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1])
+expected = {f"{theme}-{screen}.png" for theme in ("light", "dark") for screen in ("home", "settings")}
+assert {p.name for p in root.iterdir()} == expected
+for p in root.iterdir():
+    data = p.read_bytes()
+    assert data.startswith(b"\x89PNG\r\n\x1a\n") and data.endswith(b"IEND\xaeB`\x82"), p
+PY
 rm -rf screenshots
 mv "$temp" screenshots
-
