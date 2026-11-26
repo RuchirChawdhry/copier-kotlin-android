@@ -25,6 +25,6 @@ The runner uses Ubuntu 24.04, JDK 17 and an x86-64 Android emulator with KVM acc
 
 ## Status and limits
 
-The implementation has been committed, but a passing end-to-end run is not established. Consult [Actions](https://github.com/RuchirChawdhry/copier-kotlin-android/actions) for actual outcomes. The extended matrix does not yet establish ARM64, tablet, accessibility or landscape compatibility. The Copier update lifecycle is not yet a tested CI stage.
+The initial runs failed during SDK setup because the Android setup action requested the obsolete tools package. The shared workflow now explicitly requests platform-tools and installs the required SDK components. A passing end-to-end run is not established. Consult [Actions](https://github.com/RuchirChawdhry/copier-kotlin-android/actions) for actual outcomes. The extended matrix does not yet establish ARM64, tablet, accessibility or landscape compatibility. The Copier update lifecycle is not yet a tested CI stage.
 
 See [Troubleshooting](Troubleshooting) for failure diagnosis.

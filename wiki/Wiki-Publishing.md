@@ -16,7 +16,7 @@ Set Settings → Pages → Build and deployment → Source to GitHub Actions. Ru
 
 The shared workflow builds an Astro Starlight site, generates Markdown mirrors and machine-readable indexes, checks links and deploys to Pages on non-PR runs.
 
-Expected website: [copier-kotlin-android](https://ruchirchawdhry.github.io/copier-kotlin-android/). The URL becomes usable after successful deployment.
+Expected website: [copier-kotlin-android](https://ruchirchawdhry.github.io/copier-kotlin-android/). The URL becomes usable after successful deployment. A successful site build with a 404 from deploy-pages means Pages still needs to be enabled; rerun the failed deployment after setting the source.
 
 ## Editing
 
