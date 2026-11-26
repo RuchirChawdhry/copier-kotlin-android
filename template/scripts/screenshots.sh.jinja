@@ -6,7 +6,12 @@ temp=$(mktemp -d "$PWD/.screenshots.XXXXXX")
 original=$(adb shell cmd uimode night | tr -d '\r' | awk '{print $NF}')
 cleanup() {
     adb shell cmd uimode night "$original" >/dev/null 2>&1 || true
-    rm -rf "$temp"
+    if [[ -d "$temp" && "${ANDROID_CI_MODE:-}" == screenshots ]]; then
+        mkdir -p reports
+        mv "$temp" reports/failed-captures
+    else
+        rm -rf "$temp"
+    fi
 }
 trap cleanup EXIT
 for theme in light dark; do
@@ -20,20 +25,10 @@ for theme in light dark; do
         "-Pandroid.testInstrumentationRunnerArguments.class=$app_id.NavigationTest" \
         "-Pandroid.testInstrumentationRunnerArguments.captureTheme=$theme"
     for screen in home settings; do
-        adb exec-out run-as "$app_id" cat "files/screenshots/$theme-$screen.png" \
+        adb shell -T run-as "$app_id" cat "files/screenshots/$theme-$screen.png" \
             > "$temp/$theme-$screen.png"
     done
 done
-python3 - "$temp" <<'PY'
-import pathlib
-import sys
-
-root = pathlib.Path(sys.argv[1])
-expected = {f"{theme}-{screen}.png" for theme in ("light", "dark") for screen in ("home", "settings")}
-assert {p.name for p in root.iterdir()} == expected
-for p in root.iterdir():
-    data = p.read_bytes()
-    assert data.startswith(b"\x89PNG\r\n\x1a\n") and data.endswith(b"IEND\xaeB`\x82"), p
-PY
+python3 scripts/validate-screenshots.py "$temp"
 rm -rf screenshots
 mv "$temp" screenshots

@@ -1,6 +1,6 @@
 # Screenshots
 
-Capture real Android application screens on an emulator using UI Automator. Each capture verifies the system theme before saving the image.
+Capture real Android application screens on an emulator using Android's instrumentation screenshot API. Each capture verifies the system theme before saving the image.
 
 ## Local capture
 
@@ -10,7 +10,7 @@ Start one emulator or connect one device, then run:
 task screenshots
 ```
 
-The script runs the navigation test in each theme and transfers PNG files from the debug app's private storage using ADB. The complete capture set is validated before replacing the previous directory. It attempts to restore the original system theme on exit.
+The script runs the navigation test in each theme and encodes PNG files explicitly and transfers them from the debug app's private storage through ADB's non-PTY shell. The complete capture set is validated before replacing the previous directory. It attempts to restore the original system theme on exit.
 
 ## Screenshot gallery
 

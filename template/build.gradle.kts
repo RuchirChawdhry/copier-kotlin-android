@@ -14,6 +14,12 @@ subprojects {
 detekt {
     buildUponDefaultConfig = true
     config.setFrom(files("config/detekt.yml"))
-    source.setFrom(files("app/src/main/java", "app/src/test/java", "app/src/androidTest/java", "benchmark/src/main/java"))
+    source.setFrom(
+        files(
+            "app/src/main/java",
+            "app/src/test/java",
+            "app/src/androidTest/java",
+            "benchmark/src/main/java",
+        ),
+    )
 }
-

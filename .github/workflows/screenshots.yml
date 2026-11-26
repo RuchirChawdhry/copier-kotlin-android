@@ -32,15 +32,7 @@ jobs:
           path: capture
       - name: Validate and replace screenshot set
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          root = Path("capture")
-          expected = {f"{theme}-{screen}.png" for theme in ("light", "dark") for screen in ("home", "settings")}
-          assert {p.name for p in root.iterdir()} == expected
-          for p in root.iterdir():
-              data = p.read_bytes()
-              assert data.startswith(b"\x89PNG\r\n\x1a\n") and data.endswith(b"IEND\xaeB`\x82"), p
-          PY
+          python3 template/scripts/validate-screenshots.py capture
           rm -rf screenshots
           mv capture screenshots
           git add -A -- screenshots
