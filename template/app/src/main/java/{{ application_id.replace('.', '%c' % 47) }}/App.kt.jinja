@@ -33,7 +33,8 @@ internal enum class Screen(val label: Int) {
 fun App() {
     var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
     var count by rememberSaveable { mutableIntStateOf(0) }
-    MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
+    val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
+    MaterialTheme(colorScheme = colors) {
         Scaffold(
             bottomBar = {
                 NavigationBar {
@@ -50,18 +51,27 @@ fun App() {
             },
         ) { padding ->
             Column(
-                modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Text(stringResource(screen.label), style = MaterialTheme.typography.headlineMedium)
                 when (screen) {
                     Screen.HOME -> {
                         Text(stringResource(R.string.counter, count), Modifier.testTag("counter"))
-                        Button(onClick = { count = increment(count) }, modifier = Modifier.testTag("increment")) {
+                        Button(
+                            onClick = { count = increment(count) },
+                            modifier = Modifier.testTag("increment"),
+                        ) {
                             Text(stringResource(R.string.increment))
                         }
                     }
-                    Screen.SETTINGS -> Text(stringResource(R.string.theme_description), Modifier.testTag("settings"))
+                    Screen.SETTINGS -> Text(
+                        stringResource(R.string.theme_description),
+                        Modifier.testTag("settings"),
+                    )
                 }
             }
         }
