@@ -1,7 +1,7 @@
 # Android development guide
 
 ## Start here
-- Ubuntu: install Go Task and Git, then run task bootstrap once. Review SDK licenses.
+- Ubuntu: run bash scripts/bootstrap.sh once (or task bootstrap if Task is installed). Review SDK licenses.
 - Run task doctor before debugging environment failures; task doctor:json emits the same JSON.
 - Run task dev to boot a headless AVD, install and launch the app. Set ANDROID_SERIAL for multiple devices.
 

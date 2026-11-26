@@ -4,7 +4,7 @@ Native Android app with Kotlin and Jetpack Compose.
 
 Install JDK 17, Android SDK command-line tools, Git and Task. Set ANDROID_HOME and put sdkmanager, avdmanager, adb and emulator on PATH.
 
-On Ubuntu, run `task bootstrap` to provision missing prerequisites and create an AVD (SDK license acceptance is interactive). Run `task doctor` and `task dev` to verify and launch. Use `task fix`, `task check`, `task test`, `task build` for the normal feedback loop. See AGENTS.md for device automation and reporting.
+On Ubuntu, run `bash scripts/bootstrap.sh` (or `task bootstrap` if Go Task is installed) to provision missing prerequisites and create an AVD (SDK license acceptance is interactive). Run `task doctor` and `task dev` to verify and launch. Use `task fix`, `task check`, `task test`, `task build` for the normal feedback loop. See AGENTS.md for device automation and reporting.
 
 For a local x86-64 emulator:
 

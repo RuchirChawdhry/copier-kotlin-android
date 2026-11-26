@@ -34,7 +34,10 @@ class ToolingTest(unittest.TestCase):
         self.assertIn("datastore", catalog["libraries"])
 
     def test_manifest_and_png(self):
-        self.assertEqual(18, len(validator.EXPECTED))
+        expected_count = len(validator.MANIFEST['themes']) * sum(
+            len(spec['screens']) for spec in validator.LAYOUTS.values()
+        )
+        self.assertEqual(expected_count, len(validator.EXPECTED))
         self.assertEqual({"phone", "rail", "wide", "landscape"}, set(validator.LAYOUTS))
         png = (
             validator.SIGNATURE

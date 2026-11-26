@@ -4,7 +4,7 @@ The generated application includes a command-line development environment, nativ
 
 ## Bootstrap and device operations
 
-Install Git, Go Task and uv, generate the project, then run task bootstrap and accept SDK licenses. The script installs missing Ubuntu prerequisites, provisions command-line tools and creates the default AVD. Use task doctor to inspect toolchain readiness and task dev to launch the app.
+Install Git and uv, generate the project, then run bash scripts/bootstrap.sh (or task bootstrap if Task is installed) and accept SDK licenses. Missing Go Task is installed from a pinned, checksum-verified release. The script installs missing Ubuntu prerequisites, provisions command-line tools and creates the default AVD. Use task doctor to inspect toolchain readiness and task dev to launch the app.
 
 Use task device:list, task device:inspect, task device:tap -- TAG, task device:screenshot and task device:crashes to interact with the selected device. Set ANDROID_SERIAL explicitly when several devices are connected. The device CLI emits JSON, including errors for ADB failures.
 
