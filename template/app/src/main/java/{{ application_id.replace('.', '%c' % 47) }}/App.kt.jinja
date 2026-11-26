@@ -1,9 +1,11 @@
 package {{ application_id }}
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,17 +30,29 @@ fun App() {
     val store = remember(context) { SettingsStore(context) }
     val theme by store.theme.collectAsState(ThemeMode.SYSTEM)
     val dynamic by store.dynamicColors.collectAsState(true)
+    val descriptions by store.showDescriptions.collectAsState(true)
+    val compact by store.compactResults.collectAsState(false)
     AppTheme(theme, dynamic) {
         AppNavigation(screen, { screen = it }) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .padding(24.dp)
+                    .verticalScroll(remember(screen) { ScrollState(0) }),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 when (screen) {
-                    Screen.HOME -> HomeContent(count) { count = increment(count) }
-                    Screen.SETTINGS -> SettingsScreen(store, theme, dynamic)
+                    Screen.HOME -> {
+                        HomeContent(count) { count = increment(count) }
+                        LibraryScreen(descriptions, compact)
+                    }
+                    Screen.SETTINGS -> SettingsScreen(
+                        store,
+                        theme,
+                        dynamic,
+                        descriptions,
+                        compact,
+                    )
                     Screen.ABOUT -> Text(
                         stringResource(R.string.about_description),
                         Modifier.testTag("about"),
@@ -55,7 +69,6 @@ private fun HomeContent(count: Int, onIncrement: () -> Unit) {
     Button(onClick = onIncrement, modifier = Modifier.testTag("increment")) {
         Text(stringResource(R.string.increment))
     }
-    ComponentDemo()
 }
 
 internal fun increment(value: Int): Int = value + 1

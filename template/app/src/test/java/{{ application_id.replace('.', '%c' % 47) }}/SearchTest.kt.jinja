@@ -1,0 +1,19 @@
+package {{ application_id }}
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class SearchTest {
+    @Test
+    fun matchesCaseInsensitiveTitlesAndDescriptions() {
+        assertEquals(listOf("photos"), searchEntries("PHOTO").map { it.id })
+        assertEquals(listOf("documents"), searchEntries("text files").map { it.id })
+    }
+
+    @Test
+    fun handlesEmptyAndUnknownQueries() {
+        assertEquals(sampleEntries, searchEntries(" "))
+        assertTrue(searchEntries("not found").isEmpty())
+    }
+}

@@ -1,0 +1,23 @@
+package {{ application_id }}
+
+internal data class SearchEntry(val id: String, val title: String, val description: String)
+
+internal val sampleEntries = listOf(
+    SearchEntry("documents", "Documents", "Browse documents and text files"),
+    SearchEntry("photos", "Photos", "View photos and images"),
+    SearchEntry("downloads", "Downloads", "Find downloaded files"),
+    SearchEntry("projects", "Projects", "Manage project folders"),
+)
+
+internal fun searchEntries(
+    query: String,
+    entries: List<SearchEntry> = sampleEntries,
+): List<SearchEntry> {
+    val terms = query.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+    return entries.filter { entry ->
+        terms.all { term ->
+            entry.title.contains(term, ignoreCase = true) ||
+                entry.description.contains(term, ignoreCase = true)
+        }
+    }
+}

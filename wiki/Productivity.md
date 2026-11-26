@@ -10,7 +10,7 @@ Use task device:list, task device:inspect, task device:tap -- TAG, task device:s
 
 ## Settings and components
 
-DataStore persists the theme and dynamic color preference. The settings screen provides system, light, dark, AMOLED and Solarized modes and a reset action. UiComponents.kt includes a search field, empty/error/loading states and a confirmation dialog. These are small examples intended to be adapted to actual application requirements.
+DataStore persists the theme and dynamic color preference. The settings screen provides system, light, dark, AMOLED and Solarized modes a reset action, and persistent switches for result descriptions and compact results. The library search filters sample entries by title and description, shows a result count and opens selected entries. UiComponents.kt includes a search field, empty/error/loading states and a confirmation dialog. These are small examples intended to be adapted to actual application requirements.
 
 ## Optional capabilities
 

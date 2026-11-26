@@ -13,6 +13,10 @@ internal class SettingsStore(context: Context) {
     private val store = context.applicationContext.settingsDataStore
     private val themeKey = stringPreferencesKey("theme")
     private val dynamicKey = booleanPreferencesKey("dynamic_colors")
+    private val descriptionsKey = booleanPreferencesKey("show_descriptions")
+    private val compactKey = booleanPreferencesKey("compact_results")
+    val showDescriptions = store.data.map { it[descriptionsKey] ?: true }
+    val compactResults = store.data.map { it[compactKey] ?: false }
     val theme = store.data.map { prefs ->
         ThemeMode.entries.find { it.name == prefs[themeKey] } ?: ThemeMode.SYSTEM
     }
@@ -24,6 +28,14 @@ internal class SettingsStore(context: Context) {
 
     suspend fun setDynamicColors(value: Boolean) {
         store.edit { it[dynamicKey] = value }
+    }
+
+    suspend fun setShowDescriptions(value: Boolean) {
+        store.edit { it[descriptionsKey] = value }
+    }
+
+    suspend fun setCompactResults(value: Boolean) {
+        store.edit { it[compactKey] = value }
     }
 
     suspend fun reset() {

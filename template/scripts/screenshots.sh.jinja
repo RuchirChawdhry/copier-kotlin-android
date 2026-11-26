@@ -49,11 +49,22 @@ configure_display() {
     adb shell wm size "$dimensions"
     adb shell wm density "$density"
     adb shell wm user-rotation lock "$rotation"
-    # WindowManager applies rotation and density asynchronously.
-    sleep 3
-    adb shell wm size | grep -F "$dimensions"
-    adb shell wm density | grep -F "$density"
-    adb shell dumpsys window displays > "reports/display-$1.txt"
+    local orientation=port
+    [[ "$1" != landscape ]] || orientation=land
+    local config
+    for attempt in $(seq 1 20); do
+        config=$(adb shell am get-config | tr -d '\r')
+        if grep -Eq -- "-$orientation(-|$)" <<< "$config"; then
+            printf "%s\n" "$config" > "reports/display-$1.txt"
+            adb shell wm size | grep -F "$dimensions"
+            adb shell wm density | grep -F "$density"
+            return
+        fi
+        sleep 1
+    done
+    printf "%s\n" "$config" > "reports/display-$1.txt"
+    echo "Display orientation did not reach $orientation for $1" >&2
+    return 1
 }
 capture_layout() {
     local theme=$1 layout=$2

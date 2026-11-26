@@ -45,8 +45,9 @@ jobs:
             echo '::error::Application sources changed during capture; regenerate screenshots.'
             exit 1
           fi
-          rm -rf screenshots
-          mv capture screenshots
+          mkdir -p screenshots
+          find screenshots -type f -name '*.png' -delete
+          cp capture/*.png screenshots/
           git add -A -- screenshots
           if git diff --cached --quiet; then
             echo 'Screenshots have not changed.'

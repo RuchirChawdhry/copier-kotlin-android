@@ -62,16 +62,16 @@ dependencies {
     debugImplementation(libs.compose.tooling)
     debugImplementation(libs.compose.test.manifest)
     testImplementation(libs.junit)
-{% if include_robolectric %}
+{%- if include_robolectric %}
     testImplementation(libs.android.test.core)
     testImplementation(libs.robolectric)
-{% endif %}
-{% if include_http %}
+{%- endif %}
+{%- if include_http %}
     implementation(libs.okhttp)
-{% endif %}
-{% if include_background_jobs %}
+{%- endif %}
+{%- if include_background_jobs %}
     implementation(libs.work)
-{% endif %}
+{%- endif %}
     androidTestImplementation(libs.compose.test.junit4)
     androidTestImplementation(libs.android.test.junit)
     androidTestImplementation(libs.android.test.runner)

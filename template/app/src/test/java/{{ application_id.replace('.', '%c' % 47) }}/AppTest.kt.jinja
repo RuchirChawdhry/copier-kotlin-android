@@ -1,4 +1,4 @@
-{% if include_robolectric %}
+{% if include_robolectric -%}
 package {{ application_id }}
 
 import android.content.Context
@@ -18,7 +18,7 @@ class AppTest {
         assertEquals("{{ project_name }}", context.getString(R.string.app_name))
     }
 }
-{% else %}
+{%- else -%}
 package {{ application_id }}
 
 import org.junit.Assert.assertEquals
@@ -30,4 +30,4 @@ class AppTest {
         assertEquals("SYSTEM", ThemeMode.SYSTEM.name)
     }
 }
-{% endif %}
+{%- endif %}

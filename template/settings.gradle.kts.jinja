@@ -1,7 +1,12 @@
 pluginManagement {
     repositories {
         google()
-        mavenCentral()
+        val centralMirror = providers.environmentVariable("MAVEN_CENTRAL_URL").orNull
+        if (centralMirror == null) {
+            mavenCentral()
+        } else {
+            maven { url = uri(centralMirror) }
+        }
         gradlePluginPortal()
     }
 }
@@ -9,7 +14,12 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
-        mavenCentral()
+        val centralMirror = providers.environmentVariable("MAVEN_CENTRAL_URL").orNull
+        if (centralMirror == null) {
+            mavenCentral()
+        } else {
+            maven { url = uri(centralMirror) }
+        }
     }
 }
 rootProject.name = "{{ project_name }}"

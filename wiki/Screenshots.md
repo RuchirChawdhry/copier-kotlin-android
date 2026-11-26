@@ -18,12 +18,12 @@ Each layout is captured in light and dark mode:
 
 | Layout | Screens |
 | --- | --- |
-| Phone | Home, open navigation drawer, Settings, About |
-| Medium tablet | Persistent navigation rail |
-| Expanded tablet | Expanded sidebar, collapsed sidebar |
-| Landscape phone | Expanded sidebar, collapsed sidebar |
+| Phone | Home, drawer, Settings, toggled settings, About, search results, empty search |
+| Medium tablet | Persistent navigation rail, Settings |
+| Expanded tablet | Expanded sidebar, collapsed sidebar, Settings |
+| Landscape phone | Expanded sidebar, collapsed sidebar, Settings |
 
-The 18 PNGs are stored directly under the root screenshots/ directory. Filenames use the theme, layout and screen, for example dark-phone-drawer.png and light-wide-collapsed.png.
+The 30 PNGs are stored directly under the root screenshots/ directory. Filenames use the theme, layout and screen, for example dark-phone-drawer.png and light-wide-collapsed.png.
 
 Browse [repository screenshots](https://github.com/RuchirChawdhry/copier-kotlin-android/tree/main/screenshots).
 

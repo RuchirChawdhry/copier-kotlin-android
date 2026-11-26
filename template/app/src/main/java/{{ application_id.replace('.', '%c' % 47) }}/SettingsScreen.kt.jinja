@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -20,35 +20,74 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun SettingsScreen(store: SettingsStore, theme: ThemeMode, dynamic: Boolean) {
+internal fun SettingsScreen(
+    store: SettingsStore,
+    theme: ThemeMode,
+    dynamic: Boolean,
+    descriptions: Boolean,
+    compact: Boolean,
+) {
     val scope = rememberCoroutineScope()
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .testTag("settings"),
+        modifier = Modifier.fillMaxWidth().testTag("settings"),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("Appearance", style = MaterialTheme.typography.titleLarge)
-        ThemeMode.entries.forEach { mode ->
-            FilterChip(
-                selected = mode == theme,
-                onClick = { scope.launch { store.setTheme(mode) } },
-                label = { Text(mode.label) },
-                modifier = Modifier.testTag("theme-${mode.name}"),
-            )
+        ThemeMode.entries.chunked(2).forEach { modes ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                modes.forEach { mode ->
+                    FilterChip(
+                        selected = mode == theme,
+                        onClick = { scope.launch { store.setTheme(mode) } },
+                        label = { Text(mode.label) },
+                        modifier = Modifier.testTag("theme-${mode.name}"),
+                    )
+                }
+            }
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Dynamic system colors", Modifier.weight(1f))
-            Switch(
-                checked = dynamic,
-                onCheckedChange = { scope.launch { store.setDynamicColors(it) } },
-                modifier = Modifier.testTag("dynamic-colors"),
-            )
+        SettingsToggle("Dynamic colors", "Use system wallpaper colors", dynamic, "dynamic-colors") {
+            scope.launch { store.setDynamicColors(it) }
         }
-        Text("The system theme is the default.")
-        Button(onClick = { scope.launch { store.reset() } }) {
-            Text("Reset preferences")
+        HorizontalDivider()
+        Text("Search results", style = MaterialTheme.typography.titleLarge)
+        SettingsToggle(
+            "Show descriptions",
+            "Display additional details in result cards",
+            descriptions,
+            "show-descriptions",
+        ) { scope.launch { store.setShowDescriptions(it) } }
+        SettingsToggle(
+            "Compact results",
+            "Reduce spacing between items",
+            compact,
+            "compact-results",
+        ) {
+            scope.launch { store.setCompactResults(it) }
         }
+        HorizontalDivider()
+        Button(onClick = { scope.launch { store.reset() } }) { Text("Reset preferences") }
+    }
+}
+
+@Composable
+private fun SettingsToggle(
+    title: String,
+    summary: String,
+    checked: Boolean,
+    tag: String,
+    onChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(summary, style = MaterialTheme.typography.bodySmall)
+        }
+        Switch(checked, onChange, modifier = Modifier.testTag(tag))
     }
 }

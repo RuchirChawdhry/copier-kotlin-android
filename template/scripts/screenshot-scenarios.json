@@ -12,7 +12,10 @@
         "home",
         "drawer",
         "settings",
-        "about"
+        "about",
+        "search",
+        "search-empty",
+        "settings-toggles"
       ]
     },
     "rail": {
@@ -20,7 +23,8 @@
       "density": 280,
       "rotation": 0,
       "screens": [
-        "home"
+        "home",
+        "settings"
       ]
     },
     "wide": {
@@ -29,16 +33,18 @@
       "rotation": 0,
       "screens": [
         "home",
-        "collapsed"
+        "collapsed",
+        "settings"
       ]
     },
     "landscape": {
-      "size": "1080x1920",
+      "size": "1920x1080",
       "density": 440,
-      "rotation": 1,
+      "rotation": 0,
       "screens": [
         "home",
-        "collapsed"
+        "collapsed",
+        "settings"
       ]
     }
   }

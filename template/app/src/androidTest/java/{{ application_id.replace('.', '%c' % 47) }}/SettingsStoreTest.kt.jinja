@@ -16,12 +16,18 @@ class SettingsStoreTest {
         try {
             store.setTheme(ThemeMode.AMOLED)
             store.setDynamicColors(false)
+            store.setCompactResults(true)
+            store.setShowDescriptions(false)
             val reopened = SettingsStore(context)
             assertEquals(ThemeMode.AMOLED, reopened.theme.first())
             assertFalse(reopened.dynamicColors.first())
+            assertTrue(reopened.compactResults.first())
+            assertFalse(reopened.showDescriptions.first())
             reopened.reset()
             assertEquals(ThemeMode.SYSTEM, store.theme.first())
             assertTrue(store.dynamicColors.first())
+            assertFalse(store.compactResults.first())
+            assertTrue(store.showDescriptions.first())
         } finally {
             store.reset()
         }

@@ -2,13 +2,21 @@ package {{ application_id }}
 
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.state.ToggleableState
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import org.junit.Assert.assertEquals
@@ -17,6 +25,7 @@ import org.junit.Rule
 import org.junit.Test
 
 private const val PNG_QUALITY = 100
+private const val PREFERENCE_TIMEOUT = 5000L
 
 class NavigationTest {
     @get:Rule
@@ -46,13 +55,14 @@ class NavigationTest {
         when (layout) {
             "phone" -> checkPhone()
             "wide" -> checkWide(captureLayout)
-            else -> checkDestinations("rail")
+            else -> checkDestinations("rail", captureLayout)
         }
         compose.onNodeWithTag("counter").assertTextEquals("Count: 1")
     }
 
     private fun checkPhone() {
         compose.onNodeWithTag("bottom-HOME").assertIsSelected()
+        checkSearch()
         compose.onNodeWithTag("open-drawer").performClick()
         compose.onNodeWithTag("phone-drawer").assertIsDisplayed()
         compose.onNodeWithTag("drawer-HOME").assertIsSelected()
@@ -61,6 +71,8 @@ class NavigationTest {
         compose.onNodeWithTag("settings").assertIsDisplayed()
         compose.onNodeWithTag("bottom-SETTINGS").assertIsSelected()
         capture("phone-settings")
+        checkSettingsToggles()
+
         compose.onNodeWithTag("bottom-ABOUT").performClick()
         compose.onNodeWithTag("about").assertIsDisplayed()
         capture("phone-about")
@@ -68,27 +80,66 @@ class NavigationTest {
     }
 
     private fun checkWide(layout: String) {
-        checkDestinations("drawer")
+        checkDestinations("drawer", layout)
         compose.onNodeWithTag("collapse-sidebar").performClick()
         compose.onNodeWithTag("navigation-rail").assertIsDisplayed()
         compose.onNodeWithTag("rail-HOME").assertIsSelected()
         capture("$layout-collapsed")
-        checkDestinations("rail")
+        checkDestinations("rail", layout, captureSettings = false)
         compose.onNodeWithTag("expand-sidebar").performClick()
         compose.onNodeWithTag("expanded-sidebar").assertIsDisplayed()
         compose.onNodeWithTag("drawer-HOME").assertIsSelected()
     }
 
-    private fun checkDestinations(prefix: String) {
+    private fun checkDestinations(prefix: String, layout: String, captureSettings: Boolean = true) {
         compose.onNodeWithTag("$prefix-HOME").assertIsSelected()
         compose.onNodeWithTag("$prefix-SETTINGS").performClick()
         compose.onNodeWithTag("settings").assertIsDisplayed()
         compose.onNodeWithTag("$prefix-SETTINGS").assertIsSelected()
+        if (captureSettings) capture("$layout-settings")
         compose.onNodeWithTag("$prefix-ABOUT").performClick()
         compose.onNodeWithTag("about").assertIsDisplayed()
         compose.onNodeWithTag("$prefix-ABOUT").assertIsSelected()
         compose.onNodeWithTag("$prefix-HOME").performClick()
     }
+
+    private fun checkSearch() {
+        val search = compose.onNodeWithTag("search")
+        search.performScrollTo().performClick().performTextReplacement("photo")
+        search.performImeAction()
+        compose.onNodeWithTag("search-count").assertTextEquals("1 results")
+        compose.onNodeWithTag("result-photos").assertIsDisplayed()
+        compose.onNodeWithTag("result-documents").assertDoesNotExist()
+        capture("phone-search")
+        search.performTextReplacement("no match")
+        compose.onNodeWithTag("search-empty").assertExists()
+        capture("phone-search-empty")
+        compose.onNodeWithTag("clear-search").performClick()
+        compose.onNodeWithTag("search-count").assertTextEquals("4 results")
+    }
+
+    private fun checkSettingsToggles() {
+        val compact = compose.onNodeWithTag("compact-results")
+        val descriptions = compose.onNodeWithTag("show-descriptions")
+        compact.performScrollTo().assertIsOff().performClick()
+        compose.waitUntil(PREFERENCE_TIMEOUT) {
+            toggleState(compact) == ToggleableState.On
+        }
+        descriptions.performScrollTo().assertIsOn().performClick()
+        compose.waitUntil(PREFERENCE_TIMEOUT) {
+            toggleState(descriptions) == ToggleableState.Off
+        }
+        capture("phone-settings-toggles")
+        compact.performScrollTo().performClick()
+        descriptions.performScrollTo().performClick()
+        compose.waitUntil(PREFERENCE_TIMEOUT) {
+            toggleState(compact) == ToggleableState.Off &&
+                toggleState(descriptions) == ToggleableState.On
+        }
+    }
+
+    private fun toggleState(node: SemanticsNodeInteraction): ToggleableState =
+        node.fetchSemanticsNode().config[SemanticsProperties.ToggleableState]
 
     private fun hasNode(tag: String): Boolean =
         compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
