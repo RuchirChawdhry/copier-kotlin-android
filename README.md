@@ -3,7 +3,7 @@
 Native Android starter: Kotlin, Jetpack Compose, Material 3, Gradle, unit and device tests, automated screenshots and performance instrumentation.
 
 ```bash
-uvx --from copier==9.10.3 copier copy gh:RuchirChawdhry/copier-kotlin-android my-app
+uvx --from copier==9.19.1 copier copy gh:RuchirChawdhry/copier-kotlin-android my-app
 cd my-app
 task setup
 task check

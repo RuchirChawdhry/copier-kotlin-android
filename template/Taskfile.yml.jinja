@@ -4,8 +4,8 @@ tasks:
     cmds:
       - sdkmanager 'platforms;android-35' 'build-tools;35.0.0' platform-tools emulator
       - git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init
-      - git config core.hooksPath .githooks
-      - chmod +x gradlew .githooks/pre-commit
+      - chmod +x gradlew
+      - ./gradlew addKtlintFormatGitPreCommitHook
       - ./gradlew --version
   fix:
     cmd: ./gradlew ktlintFormat
