@@ -1,0 +1,15 @@
+package {{ application_id }}
+
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
+/** Working java.time starter until Dateced 3.x has a published Maven artifact. */
+internal object DateUtilities {
+    private val display = DateTimeFormatter.ofPattern("dd MMM uuuu HH:mm")
+
+    fun format(instant: Instant, zone: ZoneId = ZoneId.systemDefault()): String =
+        display.withZone(zone).format(instant)
+
+    fun parseInstant(value: String): Instant = Instant.parse(value)
+}

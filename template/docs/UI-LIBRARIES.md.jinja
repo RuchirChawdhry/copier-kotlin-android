@@ -13,7 +13,7 @@ Keep the starter fast: Material 3, Material 3 Adaptive, Compose and Coil are bui
 | [Advanced Bottom Sheet](https://klibs.io/project/Morfly/advanced-bottomsheet-compose) | `advanced_sheet` adds `advanced-bottomsheet-material3`. It is an older library; test against this Compose version. |
 | [Sea Glass](https://klibs.io/project/mttmcknn/sea-glass) | `sea_glass` adds visual effects; use sparingly on small/low-power devices. |
 | [FormInputs](https://klibs.io/project/OmarShehe/FormInputs) | `form_inputs` adds the Compose FormInputs library, not its older XML variant. |
-| [Dateced](https://klibs.io/project/kamrul3288/dateced) | `dateced` adds date/time utilities; it is not a screen component library. |
+| [Dateced](https://klibs.io/project/kamrul3288/dateced) | `dateced` currently generates working `DateUtilities.kt` using Android's built-in `java.time` APIs, with a source-recipe reference to Dateced. Its README lists `3.0.0`, but that artifact is not yet available on Maven Central; the older 2.x releases are explicitly withdrawn. No unresolved Dateced dependency is added. |
 | [DejaVu](https://klibs.io/project/mttmcknn/dejavu) | `dejavu` adds an **androidTest-only** Compose recomposition diagnostics dependency (not shipped in release APKs). |
 | FlexiUI | `flexiui` records a source recipe only. [BetterAndroid/FlexiUI](https://github.com/BetterAndroid/FlexiUI) is an old alpha and has no verified maintained Maven coordinate; copying unreviewed source would make clean builds unreliable. |
 | Composables UI | [composables.com/ui](https://composables.com/ui) is a browse-and-copy code gallery, **not a runtime package**. Choose individual components rather than adding a fake dependency. |

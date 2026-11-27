@@ -21,6 +21,8 @@ For the manual GitHub Actions release run, define `ANDROID_KEYSTORE_BASE64` (bas
 
 Check Google Play's current target API and distribution requirements before publishing. Do not assume that the pinned target SDK satisfies current store policy.
 
+For a companion phone and Wear OS app under the same Play listing, follow the [Wear OS packaging guide](https://developer.android.com/training/wearables/packaging): Google recommends a common package name and signing key, separate version codes, and **Multi-APK delivery** for the paired artifacts. Two locally generated AABs are not automatically one combined Play release. Review phone and watch delivery on the Play Console separately.
+
 Choose **Actions → Build release artifacts → Run workflow**. This workflow is `workflow_dispatch` only: it is never automatically triggered by CI, tags or pushes. Uploading to Google Play and checking the listing, screenshots, compatibility and version codes are manual user actions. Dependabot configuration is included in generated projects for Gradle and Actions dependencies.
 
 See [Configuration](Configuration) for the pinned toolchain and [Performance](Performance) for release optimization.

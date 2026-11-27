@@ -1,7 +1,13 @@
 package {{ application_id }}
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 /** A starter wire format shared with a server or another platform. */
 @Serializable
 data class SyncEnvelope(val id: String, val payload: String, val updatedAt: Long)
+
+/** Shared JSON codec for API contracts; keep wire models in this feature package. */
+internal object JsonContracts {
+    val codec = Json { ignoreUnknownKeys = true }
+}

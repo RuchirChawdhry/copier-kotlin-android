@@ -19,6 +19,8 @@ task build     # debug APKs
 
 `task emulator:tablet:create` creates a tablet AVD; `task emulator:tablet:start` boots it on port 5558 (select it with `ANDROID_SERIAL=emulator-5558`). {% if include_wear %}For a Wear emulator, inspect available image IDs with `sdkmanager --list`, set `ANDROID_WEAR_IMAGE` to a valid Wear OS system-image package, and run `task emulator:wear:create` and `task emulator:wear:start` (port 5556). Set `ANDROID_SERIAL=emulator-5556` before `task run:wear`. The Wear AVD uses the `wearos_small_round` hardware profile; if your SDK names it differently, run `avdmanager list device` and override `ANDROID_AVD_DEVICE` directly with `scripts/emulator.sh create`.{% endif %}
 
+Capture device-specific review images whenever you need them: `ANDROID_SERIAL=emulator-5558 task device:screenshot -- reports/tablet.png`{% if include_wear %} or `ANDROID_SERIAL=emulator-5556 task device:screenshot -- reports/watch.png`{% endif %}. The GitHub screenshot workflow remains manual-only and captures its existing phone scenarios; it does not automatically make Play Store-ready tablet or watch assets.
+
 ## What was selected
 
 | Copier choice | Value |
@@ -35,6 +37,7 @@ The base app has Material 3, Material 3 Adaptive, lifecycle-aware state, DataSto
 
 {% if 'algolia' in ui_addons %}Algolia InstantSearch is linked, but search requires your own Algolia app ID, index, and search-only API key. Keep administrative credentials off-device.
 {% endif %}{% if 'flexiui' in ui_addons %}FlexiUI was selected as a **source recipe**, not a compiled Gradle dependency: no currently maintained, verified Maven coordinate was found. Inspect [BetterAndroid/FlexiUI](https://github.com/BetterAndroid/FlexiUI) before copying compatible source.
+{% endif %}{% if 'dateced' in ui_addons %}Dateced was selected as a **source recipe**. Its documented 3.0.0 Maven artifact is not published yet, and the older releases are withdrawn. Use the generated `DateUtilities.kt` now; replace that helper with [Dateced](https://github.com/kamrul3288/dateced) only after its stable artifact is available.
 {% endif %}
 For copy/paste components, browse [Composables UI](https://composables.com/ui). This is a source gallery, not a Gradle dependency. Other optional add-ons are in `gradle/libs.versions.toml`; read [UI component guidance](docs/UI-LIBRARIES.md) before pulling in an experimental component library.
 
@@ -47,5 +50,8 @@ task release:phone    # app/build/outputs/apk|bundle/release
 ```
 
 The manual **Build release artifacts** GitHub Action packages APKs and AABs for download. It does not deploy to Google Play. Without signing credentials, artifacts are unsigned (except any Android tooling default) and not ready for store distribution. For signing locally, set `ANDROID_SIGNING_STORE_FILE`, `ANDROID_SIGNING_STORE_PASSWORD`, `ANDROID_SIGNING_KEY_ALIAS`, `ANDROID_SIGNING_KEY_PASSWORD`. For GitHub Actions, create the equivalent three password/alias secrets plus `ANDROID_KEYSTORE_BASE64` containing the base64-encoded keystore. Never commit a keystore or secrets. Increase `app.versionCode` and `app.versionName` in `gradle.properties` before each release. {% if include_wear %}The Wear build offsets its version code by 100000 so phone and watch artifacts can coexist under one application ID; keep the base version below 100000.{% endif %}
+
+{% if include_wear %}For a combined phone/watch Google Play listing, read the [Wear OS packaging requirements](https://developer.android.com/training/wearables/packaging). Watch and phone outputs are separate artifacts; Play requires the appropriate multi-APK distribution setup, distinct version codes and matching signing identity. Building two AAB files does not automatically publish them as one release.
+{% endif %}
 
 Start with one feature, get it running on the emulator, and expand the capability selection only when it is useful. A watch companion is not automatically equivalent to every phone feature; file access, scanner, LAN and media features need device-specific permission and UI testing.

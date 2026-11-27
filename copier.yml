@@ -57,7 +57,7 @@ ui_addons:
     Advanced Bottom Sheet: advanced_sheet
     Sea Glass visual effects: sea_glass
     FormInputs Compose: form_inputs
-    Dateced date/time helpers: dateced
+    Dateced source recipe (v3 not yet published): dateced
     DejaVu recomposition diagnostics (instrumented tests): dejavu
     FlexiUI source recipes (no verified Maven artifact): flexiui
 include_robolectric:

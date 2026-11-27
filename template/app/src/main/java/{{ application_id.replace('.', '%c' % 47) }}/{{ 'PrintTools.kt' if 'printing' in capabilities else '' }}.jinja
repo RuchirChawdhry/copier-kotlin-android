@@ -15,7 +15,7 @@ import java.io.FileOutputStream
 /** Opens the platform print dialog using a one-page text document. */
 fun printText(context: Context, title: String, content: String) {
     val manager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
-    manager.print(title, object : PrintDocumentAdapter() {
+    val adapter = object : PrintDocumentAdapter() {
         override fun onLayout(
             oldAttributes: PrintAttributes?,
             newAttributes: PrintAttributes,
@@ -46,5 +46,6 @@ fun printText(context: Context, title: String, content: String) {
             }
             callback.onWriteFinished(arrayOf(android.print.PageRange.ALL_PAGES))
         }
-    }, null)
+    }
+    manager.print(title, adapter, null)
 }

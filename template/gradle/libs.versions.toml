@@ -34,7 +34,6 @@ algolia = "5.0.0"
 advanced-sheet = "0.1.0"
 sea-glass = "0.1.0"
 form-inputs = "2.1.0"
-dateced = "3.0.0"
 dejavu = "0.5.1"
 
 [libraries]
@@ -75,7 +74,6 @@ algolia-instantsearch = { module = "com.algolia:instantsearch-compose", version.
 advanced-bottomsheet = { module = "io.morfly.compose:advanced-bottomsheet-material3", version.ref = "advanced-sheet" }
 sea-glass = { module = "dev.mttmcknn:sea-glass", version.ref = "sea-glass" }
 form-inputs = { module = "io.github.omarshehe:forminput", version.ref = "form-inputs" }
-dateced = { module = "io.github.kamrul3288:dateced", version.ref = "dateced" }
 dejavu = { module = "dev.mttmcknn:dejavu", version.ref = "dejavu" }
 datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }

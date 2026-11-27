@@ -107,6 +107,7 @@ def main() -> None:
             "JsonContracts.kt",
             "PermissionGate.kt",
             "MediaPlayerPreview.kt",
+            "DateUtilities.kt",
         ]:
             require(app / name)
         manifest = (full / "app/src/main/AndroidManifest.xml").read_text()
@@ -114,8 +115,10 @@ def main() -> None:
         assert "android.permission.BLUETOOTH_SCAN" in manifest
         assert "android.permission.INTERNET" in manifest
         gradle = (full / "app/build.gradle.kts").read_text()
+        assert "    alias(libs.plugins.ksp)\n    alias(libs.plugins.kotlin.serialization)\n}" in gradle
         assert "implementation(libs.compose.unstyled)" in gradle
         assert "implementation(libs.algolia.instantsearch)" in gradle
+        assert "implementation(libs.dateced)" not in gradle
         assert "androidTestImplementation(libs.dejavu)" in gradle
         assert "NavigationSuiteScaffold" in (app / "AppNavigation.kt").read_text()
         assert "source recipe" in (full / "docs/UI-LIBRARIES.md").read_text()

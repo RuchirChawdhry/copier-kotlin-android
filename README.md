@@ -23,8 +23,8 @@ Copier asks only for features you want:
 | Layout | Single screen, adaptive navigation tabs, or phone drawer/tablet rail (default) |
 | Native packs | Room database, CameraX, LAN discovery, Bluetooth, printing, Kotlin serialization and Media3 playback, each with a starter Kotlin file |
 | Optional platform packs | HTTP + Coil network, background WorkManager, Storage Access Framework, notifications, Robolectric |
-| Visual components | Coil, Material 3 and Material 3 Adaptive by default; optional Compose Unstyled, JetCo, RikkaUI, Algolia, advanced bottom sheet, Sea Glass, FormInputs, Dateced and DejaVu |
-| Source references | FlexiUI source recipes and [Composables UI](https://composables.com/ui) copy/paste components (not pretend Maven dependencies) |
+| Visual components | Coil, Material 3 and Material 3 Adaptive by default; optional Compose Unstyled, JetCo, RikkaUI, Algolia, advanced bottom sheet, Sea Glass, FormInputs and DejaVu |
+| Source references | Dateced (working `java.time` fallback until its advertised Maven release exists), FlexiUI source recipes and [Composables UI](https://composables.com/ui) copy/paste components (not pretend Maven dependencies) |
 
 For automation, the generated repo includes `task doctor`, `task dev`, `task device:inspect`, `task test:ui`, `task screenshots`, `task emulator:tablet:create`, `task release:phone` and (when selected) `task emulator:wear:create`, `task run:wear`, `task release:wear`. Its **Build release artifacts** action is manual-only and uploads APK/AAB artifacts; signing secrets are optional for local builds but mandatory before store submission. The screenshot action stays manual-only and is not triggered by CI or other workflows.
 

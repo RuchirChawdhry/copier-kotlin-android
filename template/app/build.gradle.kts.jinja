@@ -2,13 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.baselineprofile)
-{% if 'room' in capabilities -%}
-    alias(libs.plugins.ksp)
-{% endif -%}
-{% if 'serialization' in capabilities -%}
-    alias(libs.plugins.kotlin.serialization)
-{% endif -%}
-}
+{% if 'room' in capabilities %}    alias(libs.plugins.ksp)
+{% endif %}{% if 'serialization' in capabilities %}    alias(libs.plugins.kotlin.serialization)
+{% endif %}}
 
 val signingFile = providers.environmentVariable("ANDROID_SIGNING_STORE_FILE").orNull
 android {
@@ -131,9 +127,6 @@ dependencies {
 {%- endif %}
 {%- if 'form_inputs' in ui_addons %}
     implementation(libs.form.inputs)
-{%- endif %}
-{%- if 'dateced' in ui_addons %}
-    implementation(libs.dateced)
 {%- endif %}
 {%- if include_background_jobs %}
     implementation(libs.work)
