@@ -9,13 +9,17 @@ case "$(uname -m)" in
     aarch64|arm64) arch=arm64-v8a ;;
     *) echo 'Unsupported emulator host architecture' >&2; exit 2 ;;
 esac
-image="system-images;android-$api;google_apis;$arch"
+image="${ANDROID_AVD_IMAGE:-system-images;android-$api;google_apis;$arch}"
 serial="${ANDROID_SERIAL:-emulator-5554}"
 case "${1:-status}" in
     create)
         sdkmanager "$image"
         if ! avdmanager list avd -c | grep -Fxq "$name"; then
-            printf 'no\n' | avdmanager create avd -n "$name" -k "$image"
+            device_args=()
+            if [[ -n "${ANDROID_AVD_DEVICE:-}" ]]; then
+                device_args=(-d "$ANDROID_AVD_DEVICE")
+            fi
+            printf 'no\n' | avdmanager create avd -n "$name" -k "$image" "${device_args[@]}"
         fi
         ;;
     start)

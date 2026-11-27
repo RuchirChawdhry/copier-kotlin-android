@@ -17,6 +17,8 @@ task build     # debug APKs
 
 `task test:ui` runs instrumented tests. `task device:inspect` and `task device:tap -- TAG` expose semantic UI nodes to coding agents. `task screenshots` runs on demand, not in routine CI. Consult [AGENTS.md](AGENTS.md) for implementation conventions and device tools.
 
+`task emulator:tablet:create` creates a tablet AVD; `task emulator:tablet:start` boots it on port 5558 (select it with `ANDROID_SERIAL=emulator-5558`). {% if include_wear %}For a Wear emulator, inspect available image IDs with `sdkmanager --list`, set `ANDROID_WEAR_IMAGE` to a valid Wear OS system-image package, and run `task emulator:wear:create` and `task emulator:wear:start` (port 5556). Set `ANDROID_SERIAL=emulator-5556` before `task run:wear`. The Wear AVD uses the `wearos_small_round` hardware profile; if your SDK names it differently, run `avdmanager list device` and override `ANDROID_AVD_DEVICE` directly with `scripts/emulator.sh create`.{% endif %}
+
 ## What was selected
 
 | Copier choice | Value |

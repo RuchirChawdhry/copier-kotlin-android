@@ -5,7 +5,7 @@ source scripts/env.sh
 property() { sed -n "s/^$1=//p" gradle.properties; }
 case "${1:-install}" in
     install)
-        sdkmanager "platforms;android-$(property android.compileSdk)" \
+        sdkmanager "platforms;android-$(property android.platformPackage)" \
             "build-tools;$(property android.buildTools)" platform-tools emulator
         ;;
     api) property android.compileSdk ;;

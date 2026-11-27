@@ -35,6 +35,6 @@ The template stores its answers for future Copier updates. Choices are native [C
 
 These are the configured versions, not a promise of current Google Play submission eligibility. The benchmark module requires API 28 or above. AGP 9 uses built-in Kotlin; do not reapply the obsolete `org.jetbrains.kotlin.android` plugin.
 
-Dependency and plugin versions live in `gradle/libs.versions.toml`. SDK values live in `gradle.properties`. Opt-in UI libraries are described in the generated `docs/UI-LIBRARIES.md` and [Productivity toolkit](Productivity).
+Dependency and plugin versions live in `gradle/libs.versions.toml`. SDK values live in `gradle.properties`. `android.platformPackage=37.0` is the SDK Manager package suffix for API 37; the Gradle compile SDK is still 37. Opt-in UI libraries are described in the generated `docs/UI-LIBRARIES.md` and [Productivity toolkit](Productivity).
 
 Do not commit local.properties, keystores or signing credentials. See [Release and distribution](Release-and-Distribution).

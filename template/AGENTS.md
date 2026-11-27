@@ -22,6 +22,7 @@ Aim to get a working user-visible prototype on a device in the first iteration. 
 - `task device:list`, `task device:info`, `task device:inspect` (structured UI hierarchy), `task device:tap -- TAG`, `task device:screenshot` and `task device:crashes` support autonomous debugging. Use stable Compose test tags and accessible labels.
 - `task screenshots` is manual. It updates generated image outputs only when requested; do not tie screenshot jobs into other workflows.
 - Check compact phone, expanded tablet and, if generated, round Wear OS emulator configurations before release. Simulators do not replace hardware validation of camera, BLE, LAN or wearable interactions.
+- `task emulator:tablet:create` and (when enabled) `task emulator:wear:create`, `task emulator:wear:start`, `task run:wear` offer specific device loops. Select the correct `ANDROID_SERIAL` before installing, tapping or taking screenshots.
 
 ## Build and publish
 

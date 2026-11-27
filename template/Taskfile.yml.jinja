@@ -40,6 +40,16 @@ tasks:
     cmd: bash scripts/emulator.sh start
   emulator:create:
     cmd: bash scripts/emulator.sh create
+  emulator:tablet:create:
+    cmd: ANDROID_AVD_NAME=template-tablet ANDROID_AVD_DEVICE=pixel_c bash scripts/emulator.sh create
+  emulator:tablet:start:
+    cmd: ANDROID_AVD_NAME=template-tablet ANDROID_SERIAL=emulator-5558 bash scripts/emulator.sh start
+{% if include_wear %}
+  emulator:wear:create:
+    cmd: ANDROID_AVD_NAME=template-wear ANDROID_AVD_IMAGE="${ANDROID_WEAR_IMAGE:?Set ANDROID_WEAR_IMAGE using sdkmanager --list}" ANDROID_AVD_DEVICE=wearos_small_round bash scripts/emulator.sh create
+  emulator:wear:start:
+    cmd: ANDROID_AVD_NAME=template-wear ANDROID_SERIAL=emulator-5556 bash scripts/emulator.sh start
+{% endif %}
   emulator:start:
     cmd: bash scripts/emulator.sh start
   emulator:stop:
@@ -50,6 +60,14 @@ tasks:
     cmd: bash scripts/emulator.sh reset
   install:
     cmd: bash scripts/dev.sh ./gradlew :app:installDebug
+{% if include_wear %}
+  install:wear:
+    cmd: bash scripts/dev.sh ./gradlew :wear:installDebug
+  run:wear:
+    cmds:
+      - task: install:wear
+      - bash scripts/dev.sh adb shell am start -n {{ application_id }}/{{ application_id }}.wear.WearActivity
+{% endif %}
   run:
     cmds:
       - task: install
