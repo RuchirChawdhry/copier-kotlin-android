@@ -24,7 +24,10 @@ def expected_names(layouts, themes):
     }
 
 
-def validate_png(path, expected_dimensions):
+EXPECTED = expected_names(list(LAYOUTS), MANIFEST["themes"])
+
+
+def validate_png(path, expected_dimensions=None):
     data = path.read_bytes()
     if not data.startswith(SIGNATURE):
         raise ValueError(f"invalid PNG signature ({len(data)} bytes; header={data[:16].hex()})")
@@ -48,7 +51,7 @@ def validate_png(path, expected_dimensions):
         if kind == b"IEND":
             if size or types[0] != b"IHDR" or b"IDAT" not in types or not dimensions or not all(dimensions):
                 raise ValueError("invalid PNG structure")
-            if dimensions != expected_dimensions:
+            if expected_dimensions is not None and dimensions != expected_dimensions:
                 raise ValueError(f"unexpected dimensions {dimensions}; expected {expected_dimensions}")
             if end != len(data):
                 # A complete PNG can be recovered without modifying any image data.

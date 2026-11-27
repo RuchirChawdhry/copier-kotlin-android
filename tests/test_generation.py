@@ -66,6 +66,7 @@ def main() -> None:
 
         default = work / "default"
         render(source, default, {})
+        subprocess.run(["python3", "scripts/test-tooling.py"], cwd=default, check=True)
         require(default / "wear/build.gradle.kts")
         require(default / "core/build.gradle.kts")
         require(default / "app/src/main/java/com/example/androidapp/AppViewModel.kt")
