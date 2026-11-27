@@ -24,6 +24,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "{{ project_name }}"
 include(":app", ":benchmark")
-{% if include_wear %}
+{% if include_wear -%}
 include(":core", ":wear")
-{% endif %}
+{% endif -%}

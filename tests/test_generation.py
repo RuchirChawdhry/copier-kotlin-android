@@ -70,6 +70,12 @@ def main() -> None:
         require(default / ".github/workflows/release.yml")
         assert "workflow_dispatch:" in (default / ".github/workflows/release.yml").read_text()
         assert "push:" not in (default / ".github/workflows/screenshots.yml").read_text()
+        assert "dependencies {\n    implementation(project(\":core\"))" in (
+            default / "app/build.gradle.kts"
+        ).read_text()
+        assert "import kotlinx.coroutines.launch\n\n@OptIn" in (
+            default / "app/src/main/java/com/example/androidapp/AppNavigation.kt"
+        ).read_text()
 
         lean = work / "lean"
         render(source, lean, {"include_wear": False, "ui_layout": "single"})
@@ -77,6 +83,7 @@ def main() -> None:
         require(lean / "core", False)
         assert "include(\":wear\")" not in (lean / "settings.gradle.kts").read_text()
         assert "build:wear" not in (lean / "Taskfile.yml").read_text()
+        assert "dependencies {\n    val composeBom" in (lean / "app/build.gradle.kts").read_text()
 
         full = work / "full"
         render(

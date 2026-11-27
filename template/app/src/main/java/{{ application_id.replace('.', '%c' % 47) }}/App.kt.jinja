@@ -11,13 +11,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun App() {
@@ -59,6 +59,10 @@ fun App() {
     }
 }
 
+{% if not include_wear -%}
+internal fun increment(value: Int): Int = value + 1
+
+{% endif -%}
 @Composable
 private fun HomeContent(count: Int, onIncrement: () -> Unit) {
     AppArtwork()
@@ -67,7 +71,3 @@ private fun HomeContent(count: Int, onIncrement: () -> Unit) {
         Text(stringResource(R.string.increment))
     }
 }
-
-{% if not include_wear %}
-internal fun increment(value: Int): Int = value + 1
-{% endif %}

@@ -1,6 +1,5 @@
 package {{ application_id }}.wear
 
-import {{ application_id }}.increment
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,7 +35,7 @@ internal fun WearApp() {
         ) {
             Text("{{ project_name }}")
             Text("$count")
-            Button(onClick = { count = increment(count) }) { Text("Start") }
+            Button(onClick = { count = {{ application_id }}.increment(count) }) { Text("Start") }
         }
     }
 }

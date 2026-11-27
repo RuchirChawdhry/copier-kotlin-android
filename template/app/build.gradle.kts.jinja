@@ -2,12 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.baselineprofile)
-{% if 'room' in capabilities %}
+{% if 'room' in capabilities -%}
     alias(libs.plugins.ksp)
-{% endif %}
-{% if 'serialization' in capabilities %}
+{% endif -%}
+{% if 'serialization' in capabilities -%}
     alias(libs.plugins.kotlin.serialization)
-{% endif %}
+{% endif -%}
 }
 
 val signingFile = providers.environmentVariable("ANDROID_SIGNING_STORE_FILE").orNull
@@ -29,7 +29,8 @@ android {
         signingFile?.let { path ->
             create("releaseFromEnv") {
                 storeFile = file(path)
-                storePassword = providers.environmentVariable("ANDROID_SIGNING_STORE_PASSWORD").get()
+                storePassword =
+                    providers.environmentVariable("ANDROID_SIGNING_STORE_PASSWORD").get()
                 keyAlias = providers.environmentVariable("ANDROID_SIGNING_KEY_ALIAS").get()
                 keyPassword = providers.environmentVariable("ANDROID_SIGNING_KEY_PASSWORD").get()
             }
@@ -64,10 +65,8 @@ baselineProfile {
 }
 
 dependencies {
-{% if include_wear %}
-    implementation(project(":core"))
-{% endif %}
-    val composeBom = platform(libs.compose.bom)
+{% if include_wear %}    implementation(project(":core"))
+{% endif %}    val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation(libs.activity.compose)

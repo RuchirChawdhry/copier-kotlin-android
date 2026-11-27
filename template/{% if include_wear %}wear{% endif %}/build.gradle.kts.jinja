@@ -21,7 +21,8 @@ android {
         signingFile?.let { path ->
             create("releaseFromEnv") {
                 storeFile = file(path)
-                storePassword = providers.environmentVariable("ANDROID_SIGNING_STORE_PASSWORD").get()
+                storePassword =
+                    providers.environmentVariable("ANDROID_SIGNING_STORE_PASSWORD").get()
                 keyAlias = providers.environmentVariable("ANDROID_SIGNING_KEY_ALIAS").get()
                 keyPassword = providers.environmentVariable("ANDROID_SIGNING_KEY_PASSWORD").get()
             }
