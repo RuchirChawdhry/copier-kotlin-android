@@ -50,7 +50,7 @@ class NavigationTest {
             assertEquals(captureLayout, layout)
         }
         capture("$captureLayout-home")
-        compose.onNodeWithTag("increment").performClick()
+        compose.onNodeWithTag("increment").performScrollTo().performClick()
         compose.onNodeWithTag("counter").assertTextEquals("Count: 1")
         when (layout) {
             "phone" -> checkPhone()
