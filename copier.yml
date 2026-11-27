@@ -22,6 +22,14 @@ ui_layout:
     Single screen: single
     Bottom tabs: tabs
     Adaptive drawer and rail: adaptive
+visual_style:
+  type: str
+  default: native
+  help: Choose the starting visual language; it works with any navigation layout.
+  choices:
+    Refined Native (Material 3): native
+    Editorial (serif headings and warm surfaces): editorial
+    Technical (metric-first and outlined surfaces): technical
 include_wear:
   type: bool
   default: true

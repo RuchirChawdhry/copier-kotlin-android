@@ -7,6 +7,7 @@
 | project_name | Android App | Gradle project name and Android display label |
 | application_id | com.example.androidapp | Android application ID, namespace and source packages |
 | ui_layout | adaptive | Single screen, navigation suite tabs or responsive drawer/rail |
+| visual_style | native | Refined Native, Editorial or Technical phone/tablet design presets |
 | include_wear | true | Generate watch APK/AAB and lightweight shared core |
 | wear_standalone | true | Watch standalone metadata (shown only when Wear is enabled) |
 | capabilities | none | Multiselect: Room, CameraX, LAN, Bluetooth, printing, serialization, Media3 playback |
@@ -33,7 +34,9 @@ The template stores its answers for future Copier updates. Choices are native [C
 | compileSdk / targetSdk | 37 / 36 |
 | minSdk | 26 |
 
-These are the configured versions, not a promise of current Google Play submission eligibility. The benchmark module requires API 28 or above. AGP 9 uses built-in Kotlin; do not reapply the obsolete `org.jetbrains.kotlin.android` plugin.
+These are the configured versions, not a distribution policy guarantee. The benchmark module requires API 28 or above. AGP 9 uses built-in Kotlin; do not reapply the obsolete `org.jetbrains.kotlin.android` plugin.
+
+The selected `visual_style` generates one constant in `AppDesign.kt`, alongside the shared spacing, typography, shape and color definitions. Native enables Material You dynamic color by default, while Editorial and Technical start with intentionally distinct palettes. All allow dynamic colors to be toggled in Settings. The style is independent of `ui_layout`, Android capabilities and the separate Wear UI.
 
 Dependency and plugin versions live in `gradle/libs.versions.toml`. SDK values live in `gradle.properties`. `android.platformPackage=37.0` is the SDK Manager package suffix for API 37; the Gradle compile SDK is still 37. Opt-in UI libraries are described in the generated `docs/UI-LIBRARIES.md` and [Productivity toolkit](Productivity).
 

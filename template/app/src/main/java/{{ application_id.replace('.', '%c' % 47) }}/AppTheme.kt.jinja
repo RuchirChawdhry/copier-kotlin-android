@@ -25,12 +25,11 @@ internal fun AppTheme(mode: ThemeMode, dynamic: Boolean, content: @Composable ()
                 dynamicLightColorScheme(context)
             }
 
-            dark -> darkColorScheme()
-            else -> lightColorScheme()
+            else -> presetColorScheme(dark)
         }
-        ThemeMode.LIGHT -> lightColorScheme()
-        ThemeMode.DARK -> darkColorScheme()
-        ThemeMode.AMOLED -> darkColorScheme(
+        ThemeMode.LIGHT -> presetColorScheme(false)
+        ThemeMode.DARK -> presetColorScheme(true)
+        ThemeMode.AMOLED -> presetColorScheme(true).copy(
             background = Color.Black,
             surface = Color.Black,
         )
@@ -49,5 +48,10 @@ internal fun AppTheme(mode: ThemeMode, dynamic: Boolean, content: @Composable ()
             primary = Color(0xFF62C9CB),
         )
     }
-    MaterialTheme(colorScheme = colors, content = content)
+    MaterialTheme(
+        colorScheme = colors,
+        typography = AppTypography,
+        shapes = AppShapes,
+        content = content,
+    )
 }

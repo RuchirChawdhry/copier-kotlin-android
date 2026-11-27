@@ -2,15 +2,20 @@ package {{ application_id }}
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -25,34 +30,37 @@ fun App() {
     val context = LocalContext.current
     val store = remember(context) { SettingsStore(context) }
     val theme by store.theme.collectAsStateWithLifecycle(ThemeMode.SYSTEM)
-    val dynamic by store.dynamicColors.collectAsStateWithLifecycle(true)
+    val dynamic by store.dynamicColors.collectAsStateWithLifecycle(DefaultDynamicColors)
     val descriptions by store.showDescriptions.collectAsStateWithLifecycle(true)
     val compact by store.compactResults.collectAsStateWithLifecycle(false)
     AppTheme(theme, dynamic) {
         AppNavigation(model.screen, model::navigate) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp)
-                    .verticalScroll(remember(model.screen) { ScrollState(0) }),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                when (model.screen) {
-                    Screen.HOME -> {
-                        HomeContent(model.count, model::increment)
-                        LibraryScreen(descriptions, compact)
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .widthIn(max = 840.dp)
+                        .padding(AppSpace.xl)
+                        .verticalScroll(remember(model.screen) { ScrollState(0) }),
+                    verticalArrangement = Arrangement.spacedBy(AppSpace.lg),
+                ) {
+                    when (model.screen) {
+                        Screen.HOME -> {
+                            HomeContent(model.count, model::increment)
+                            LibraryScreen(descriptions, compact)
+                        }
+                        Screen.SETTINGS -> SettingsScreen(
+                            store,
+                            theme,
+                            dynamic,
+                            descriptions,
+                            compact,
+                        )
+                        Screen.ABOUT -> Text(
+                            stringResource(R.string.about_description),
+                            Modifier.testTag("about"),
+                        )
                     }
-                    Screen.SETTINGS -> SettingsScreen(
-                        store,
-                        theme,
-                        dynamic,
-                        descriptions,
-                        compact,
-                    )
-                    Screen.ABOUT -> Text(
-                        stringResource(R.string.about_description),
-                        Modifier.testTag("about"),
-                    )
                 }
             }
         }
@@ -66,8 +74,18 @@ internal fun increment(value: Int): Int = value + 1
 @Composable
 private fun HomeContent(count: Int, onIncrement: () -> Unit) {
     AppArtwork()
-    Text(stringResource(R.string.counter, count), Modifier.testTag("counter"))
-    Button(onClick = onIncrement, modifier = Modifier.testTag("increment")) {
-        Text(stringResource(R.string.increment))
+    AppSectionHeading(
+        eyebrow = "YOUR WORKSPACE",
+        title = "Build what matters",
+        supporting = "A focused starting point for your next Android idea.",
+    )
+    AppInfoCard(title = "Live preview", supporting = "State survives rotation and navigation.") {
+        if (GeneratedVisualStyle == VisualStyle.TECHNICAL) {
+            Text(count.toString(), style = MaterialTheme.typography.displayLarge)
+        }
+        Text(stringResource(R.string.counter, count), Modifier.testTag("counter"))
+        Button(onClick = onIncrement, modifier = Modifier.testTag("increment")) {
+            Text(stringResource(R.string.increment))
+        }
     }
 }

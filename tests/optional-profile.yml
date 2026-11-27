@@ -8,3 +8,4 @@ include_notifications: true
 include_robolectric: true
 capabilities: [room, camera, lan, bluetooth, printing, serialization, media]
 ui_addons: [jetco, rikkaui, unstyled, algolia, advanced_sheet, sea_glass, form_inputs, dateced, dejavu, flexiui]
+visual_style: technical

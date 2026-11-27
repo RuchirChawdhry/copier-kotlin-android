@@ -1,8 +1,10 @@
 package {{ application_id }}
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,6 +37,53 @@ internal fun AppArtwork() {
         contentDescription = null,
         modifier = Modifier.size(48.dp),
     )
+}
+
+/** Small reusable compositions use the selected preset through MaterialTheme and AppSpace. */
+@Composable
+internal fun AppSectionHeading(eyebrow: String, title: String, supporting: String? = null) {
+    Column(verticalArrangement = Arrangement.spacedBy(AppSpace.xs)) {
+        Text(
+            eyebrow.uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Text(title, style = MaterialTheme.typography.headlineLarge)
+        if (supporting != null) {
+            Text(
+                supporting,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun AppInfoCard(title: String, supporting: String, content: @Composable () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = if (GeneratedVisualStyle == VisualStyle.TECHNICAL) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        } else {
+            null
+        },
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpace.lg),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.sm),
+        ) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(
+                supporting,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            content()
+        }
+    }
 }
 
 @Composable
@@ -65,7 +115,7 @@ internal fun EmptyState(message: String) {
 
 @Composable
 internal fun ErrorState(message: String, onRetry: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
         Text(message, color = MaterialTheme.colorScheme.error)
         Button(onClick = onRetry) { Text("Retry") }
     }

@@ -67,6 +67,8 @@ def main() -> None:
         require(default / "app/src/main/java/com/example/androidapp/AppViewModel.kt")
         require(default / "app/src/main/java/com/example/androidapp/NotesDatabase.kt", False)
         require(default / "docs/UI-LIBRARIES.md")
+        design = default / "app/src/main/java/com/example/androidapp/AppDesign.kt"
+        assert "GeneratedVisualStyle = VisualStyle.NATIVE" in design.read_text()
         require(default / ".github/workflows/release.yml")
         assert "workflow_dispatch:" in (default / ".github/workflows/release.yml").read_text()
         assert "push:" not in (default / ".github/workflows/screenshots.yml").read_text()
@@ -78,7 +80,14 @@ def main() -> None:
         ).read_text()
 
         lean = work / "lean"
-        render(source, lean, {"include_wear": False, "ui_layout": "single"})
+        render(
+            source,
+            lean,
+            {"include_wear": False, "ui_layout": "single", "visual_style": "editorial"},
+        )
+        assert "GeneratedVisualStyle = VisualStyle.EDITORIAL" in (
+            lean / "app/src/main/java/com/example/androidapp/AppDesign.kt"
+        ).read_text()
         require(lean / "wear", False)
         require(lean / "core", False)
         assert "include(\":wear\")" not in (lean / "settings.gradle.kts").read_text()
@@ -92,12 +101,16 @@ def main() -> None:
             {
                 "include_wear": True,
                 "ui_layout": "tabs",
+                "visual_style": "technical",
                 "include_http": True,
                 "capabilities": NATIVE,
                 "ui_addons": ADDONS,
             },
         )
         app = full / "app/src/main/java/com/example/androidapp"
+        assert "GeneratedVisualStyle = VisualStyle.TECHNICAL" in (
+            app / "AppDesign.kt"
+        ).read_text()
         for name in [
             "NotesDatabase.kt",
             "CameraPreview.kt",
@@ -124,6 +137,15 @@ def main() -> None:
         assert "source recipe" in (full / "docs/UI-LIBRARIES.md").read_text()
 
         for destination in [default, lean, full]:
+            app_sources = destination / "app/src/main/java/com/example/androidapp"
+            theme = (app_sources / "AppTheme.kt").read_text()
+            assert "typography = AppTypography" in theme
+            assert "shapes = AppShapes" in theme
+            assert "presetColorScheme(dark)" in theme
+            assert "?: DefaultDynamicColors" in (
+                app_sources / "SettingsStore.kt"
+            ).read_text()
+            assert "| Visual style |" in (destination / "README.md").read_text()
             for path in destination.rglob("*"):
                 assert not path.name.endswith(".jinja"), path
             for kotlin in destination.rglob("*.kt"):

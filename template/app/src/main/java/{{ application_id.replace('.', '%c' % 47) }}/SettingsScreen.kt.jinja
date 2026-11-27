@@ -16,7 +16,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @Composable
@@ -30,11 +29,11 @@ internal fun SettingsScreen(
     val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier.fillMaxWidth().testTag("settings"),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(AppSpace.sm),
     ) {
         Text("Appearance", style = MaterialTheme.typography.titleLarge)
         ThemeMode.entries.chunked(2).forEach { modes ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
                 modes.forEach { mode ->
                     FilterChip(
                         selected = mode == theme,
@@ -80,9 +79,9 @@ private fun SettingsToggle(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = AppSpace.xs),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(AppSpace.md),
     ) {
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleMedium)

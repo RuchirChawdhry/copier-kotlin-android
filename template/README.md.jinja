@@ -19,7 +19,7 @@ task build     # debug APKs
 
 `task emulator:tablet:create` creates a tablet AVD; `task emulator:tablet:start` boots it on port 5558 (select it with `ANDROID_SERIAL=emulator-5558`). {% if include_wear %}For a Wear emulator, inspect available image IDs with `sdkmanager --list`, set `ANDROID_WEAR_IMAGE` to a valid Wear OS system-image package, and run `task emulator:wear:create` and `task emulator:wear:start` (port 5556). Set `ANDROID_SERIAL=emulator-5556` before `task run:wear`. The Wear AVD uses the `wearos_small_round` hardware profile; if your SDK names it differently, run `avdmanager list device` and override `ANDROID_AVD_DEVICE` directly with `scripts/emulator.sh create`.{% endif %}
 
-Capture device-specific review images whenever you need them: `ANDROID_SERIAL=emulator-5558 task device:screenshot -- reports/tablet.png`{% if include_wear %} or `ANDROID_SERIAL=emulator-5556 task device:screenshot -- reports/watch.png`{% endif %}. The GitHub screenshot workflow remains manual-only and captures its existing phone scenarios; it does not automatically make Play Store-ready tablet or watch assets.
+Capture device-specific review images whenever you need them: `ANDROID_SERIAL=emulator-5558 task device:screenshot -- reports/tablet.png`{% if include_wear %} or `ANDROID_SERIAL=emulator-5556 task device:screenshot -- reports/watch.png`{% endif %}. The GitHub screenshot workflow remains manual-only and captures its existing phone scenarios.
 
 ## What was selected
 
@@ -27,6 +27,7 @@ Capture device-specific review images whenever you need them: `ANDROID_SERIAL=em
 | --- | --- |
 | Application ID | `{{ application_id }}` |
 | Phone/tablet navigation | `{{ ui_layout }}` |
+| Visual style | `{{ visual_style }}` |
 | Wear OS module | `{{ include_wear }}` |
 | Native capabilities | {{ capabilities | join(', ') if capabilities else 'None; add as needed' }} |
 | UI add-ons | {{ ui_addons | join(', ') if ui_addons else 'None; add as needed' }} |
@@ -34,6 +35,12 @@ Capture device-specific review images whenever you need them: `ANDROID_SERIAL=em
 The phone/tablet build uses one `:app` APK or AAB and resizes its Compose UI for larger screens. {% if include_wear %}Wear OS is a separate `:wear` APK/AAB with round-screen Compose Material 3, a watch manifest, and a distinct version-code range. The tiny `:core` module shows how to share business logic; extend it with the domain models and services your real app needs. The watch has its own UI because phone layouts and some hardware permissions are unsuitable on a watch. Both packages use `{{ application_id }}` and must use the **same signing key** for companion installs.{% else %}The watch app is omitted. You can add it by rerunning Copier with `include_wear=true` and reviewing the update.{% endif %}
 
 The base app has Material 3, Material 3 Adaptive, lifecycle-aware state, DataStore settings, Coil image loading, Compose tests, and developer tooling. Selected native capability examples live in files such as `NotesDatabase.kt`, `CameraPreview.kt`, or `LanDiscovery.kt` and are intentionally not launched before the app asks for relevant permissions.
+
+### Visual design
+
+The Copier-selected `{{ visual_style }}` style controls the phone/tablet app's Material 3 typography, colors, corner radii and starter components. `native` follows refined system typography and supports Android dynamic colors by default; `editorial` uses serif headings and warm, paper-like surfaces; `technical` emphasizes large monospace metrics, a cool palette and fine outlines. All three support light, dark, AMOLED and optional system dynamic colors. They are **starting points**, not dependencies on bundled fonts or a separate UI framework.
+
+Use `AppSpace` for spacing, `MaterialTheme.typography` for text, `MaterialTheme.shapes` for corners, and `MaterialTheme.colorScheme` for color. Reuse `AppSectionHeading` and `AppInfoCard` in `UiComponents.kt`; extend these tokens as your app develops. The watch uses its own round-screen Wear Material 3 theme and is not restyled by the phone preset.
 
 {% if 'algolia' in ui_addons %}Algolia InstantSearch is linked, but search requires your own Algolia app ID, index, and search-only API key. Keep administrative credentials off-device.
 {% endif %}{% if 'flexiui' in ui_addons %}FlexiUI was selected as a **source recipe**, not a compiled Gradle dependency: no currently maintained, verified Maven coordinate was found. Inspect [BetterAndroid/FlexiUI](https://github.com/BetterAndroid/FlexiUI) before copying compatible source.
@@ -49,9 +56,6 @@ task release:phone    # app/build/outputs/apk|bundle/release
 {% endif %}task release          # all selected targets
 ```
 
-The manual **Build release artifacts** GitHub Action packages APKs and AABs for download. It does not deploy to Google Play. Without signing credentials, artifacts are unsigned (except any Android tooling default) and not ready for store distribution. For signing locally, set `ANDROID_SIGNING_STORE_FILE`, `ANDROID_SIGNING_STORE_PASSWORD`, `ANDROID_SIGNING_KEY_ALIAS`, `ANDROID_SIGNING_KEY_PASSWORD`. For GitHub Actions, create the equivalent three password/alias secrets plus `ANDROID_KEYSTORE_BASE64` containing the base64-encoded keystore. Never commit a keystore or secrets. Increase `app.versionCode` and `app.versionName` in `gradle.properties` before each release. {% if include_wear %}The Wear build offsets its version code by 100000 so phone and watch artifacts can coexist under one application ID; keep the base version below 100000.{% endif %}
-
-{% if include_wear %}For a combined phone/watch Google Play listing, read the [Wear OS packaging requirements](https://developer.android.com/training/wearables/packaging). Watch and phone outputs are separate artifacts; Play requires the appropriate multi-APK distribution setup, distinct version codes and matching signing identity. Building two AAB files does not automatically publish them as one release.
-{% endif %}
+The manual **Build release artifacts** GitHub Action packages APKs and AABs for download. Distribution and store publishing are outside this template's scope. Without signing credentials, release outputs are unsigned and not ready for distribution. For signing locally, set `ANDROID_SIGNING_STORE_FILE`, `ANDROID_SIGNING_STORE_PASSWORD`, `ANDROID_SIGNING_KEY_ALIAS`, `ANDROID_SIGNING_KEY_PASSWORD`. For GitHub Actions, create the equivalent three password/alias secrets plus `ANDROID_KEYSTORE_BASE64` containing the base64-encoded keystore. Never commit a keystore or secrets. Increase `app.versionCode` and `app.versionName` in `gradle.properties` before each release. {% if include_wear %}The Wear build offsets its version code by 100000 to distinguish phone and watch artifacts; keep the base version below 100000.{% endif %}
 
 Start with one feature, get it running on the emulator, and expand the capability selection only when it is useful. A watch companion is not automatically equivalent to every phone feature; file access, scanner, LAN and media features need device-specific permission and UI testing.
