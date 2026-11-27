@@ -1,0 +1,10 @@
+# Exercises every optional capability against a single generated application.
+ui_layout: tabs
+include_wear: true
+include_http: true
+include_background_jobs: true
+include_file_access: true
+include_notifications: true
+include_robolectric: true
+capabilities: [room, camera, lan, bluetooth, printing, serialization, media]
+ui_addons: [jetco, rikkaui, unstyled, algolia, advanced_sheet, sea_glass, form_inputs, dateced, dejavu, flexiui]

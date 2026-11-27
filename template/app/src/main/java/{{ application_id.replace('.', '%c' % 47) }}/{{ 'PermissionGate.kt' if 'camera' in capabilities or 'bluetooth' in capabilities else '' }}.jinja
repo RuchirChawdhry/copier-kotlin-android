@@ -23,7 +23,9 @@ fun PermissionGate(
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
     }
     var granted by remember(permissions.contentToString()) { mutableStateOf(allowed()) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) {
         granted = allowed()
     }
     if (granted) {

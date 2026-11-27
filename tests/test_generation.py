@@ -123,6 +123,11 @@ def main() -> None:
         for destination in [default, lean, full]:
             for path in destination.rglob("*"):
                 assert not path.name.endswith(".jinja"), path
+            for kotlin in destination.rglob("*.kt"):
+                lines = kotlin.read_text().splitlines()
+                imports = [line for line in lines if line.startswith("import ")]
+                assert imports == sorted(imports), f"Unsorted imports: {kotlin}"
+                assert all(len(line) <= 100 for line in lines), f"Long Kotlin line: {kotlin}"
             for workflow in (destination / ".github/workflows").glob("*.yml"):
                 content = workflow.read_text()
                 assert "{%" not in content and re.search(r"(?<!\$)\{\{", content) is None, workflow
