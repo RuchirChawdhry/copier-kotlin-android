@@ -111,8 +111,9 @@ def main() -> None:
                 assert width > height and dp_width >= 600
         assert "screenshots:preview:" in (default / "Taskfile.yml").read_text()
         validator = runpy.run_path(str(default / "scripts/validate-screenshots.py"))
-        assert len(validator["expected_names"](["phone"], ["light"])) == 7
-        assert len(validator["expected_names"](list(scenarios["layouts"]), ["light", "dark"])) == 30
+        assert len(validator["expected_names"](["phone"], ["light"])) == 8
+        assert "light-phone-sheet-expanded.png" in validator["expected_names"](["phone"], ["light"])
+        assert len(validator["expected_names"](list(scenarios["layouts"]), ["light", "dark"])) == 38
 
         def chunk(kind: bytes, payload: bytes) -> bytes:
             return (struct.pack(">I", len(payload)) + kind + payload +
