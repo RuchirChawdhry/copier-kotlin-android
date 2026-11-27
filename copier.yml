@@ -43,6 +43,7 @@ capabilities:
     Bluetooth: bluetooth
     Android printing: printing
     JSON serialization: serialization
+    Audio/video playback (Media3): media
 ui_addons:
   type: str
   multiselect: true

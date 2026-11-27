@@ -1,0 +1,27 @@
+package {{ application_id }}
+
+import android.net.Uri
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.compose.material3.Player
+
+/** A working Media3 Compose playback surface. Call with a content or HTTPS URI. */
+@Composable
+fun MediaPlayerPreview(uri: Uri, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val player = remember(context, uri) {
+        ExoPlayer.Builder(context).build().apply {
+            setMediaItem(MediaItem.fromUri(uri))
+            prepare()
+        }
+    }
+    DisposableEffect(player) {
+        onDispose { player.release() }
+    }
+    Player(player = player, modifier = modifier)
+}

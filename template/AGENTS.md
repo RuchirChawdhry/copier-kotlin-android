@@ -13,7 +13,7 @@ Aim to get a working user-visible prototype on a device in the first iteration. 
 - `app` is the phone/tablet UI and Android entrypoint; `AppViewModel.kt` owns screen and sample counter state. `SettingsStore.kt` is the DataStore example.
 - `AppNavigation.kt` is the responsive shell (single, tabs or adaptive); `UiComponents.kt` is the place for reusable components.
 - `core`, if present, holds logic shared with the separate `wear` app. Keep this lightweight. A watch needs its own round-screen Compose UI and manifest.
-- Optional capability starter files (Room, CameraX, LAN discovery, Bluetooth, printing, serialization) compile only when selected. Ask for runtime permissions and handle unavailable hardware before invoking features.
+- Optional capability starter files (Room, CameraX, LAN discovery, Bluetooth, printing, serialization, Media3) compile only when selected. Ask for runtime permissions and handle unavailable hardware before invoking features.
 - Prefer feature-oriented files for each new screen. Extract modules only when sharing or build speed warrants it. Never store credentials in source or the APK.
 
 ## Agent feedback loop

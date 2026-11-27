@@ -29,6 +29,6 @@ Copier lets you select a single-screen shell, Material 3 adaptive navigation tab
 
 The watch is a separate app using Wear Compose Material 3, not a shrunk version of the phone UI. It shares a small logic module with the handheld target, ready for feature-specific domain models. Phone/tablet layouts share one APK; watch packaging and store/device behavior are different. Neither the `:core` module nor this template automatically synchronizes data over Bluetooth or the network.
 
-Use the Android SDK and AndroidX for platform capabilities. Select Room, CameraX, LAN, Bluetooth, printing and/or serialization in Copier to get manifest entries, dependencies and starter APIs only for those capabilities. Add native C, C++ or Rust libraries only where measurements justify a native computation layer. No NDK integration is included by default.
+Use the Android SDK and AndroidX for platform capabilities. Select Room, CameraX, LAN, Bluetooth, printing, serialization or Media3 in Copier to get manifest entries, dependencies and starter APIs only for those capabilities. Add native C, C++ or Rust libraries only where measurements justify a native computation layer. No NDK integration is included by default.
 
 See [Performance](Performance) and [Testing and CI](Testing-and-CI).

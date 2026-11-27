@@ -107,6 +107,10 @@ dependencies {
 {%- if 'serialization' in capabilities %}
     implementation(libs.kotlinx.serialization)
 {%- endif %}
+{%- if 'media' in capabilities %}
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.compose.material3)
+{%- endif %}
 {%- if 'jetco' in ui_addons %}
     implementation(libs.jetco)
 {%- endif %}

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-{% if include_http or 'lan' in capabilities or 'algolia' in ui_addons %}
+{% if include_http or 'lan' in capabilities or 'media' in capabilities or 'algolia' in ui_addons %}
     <uses-permission android:name="android.permission.INTERNET" />
 {% endif %}
 {% if 'lan' in capabilities %}

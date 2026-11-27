@@ -9,7 +9,7 @@
 | ui_layout | adaptive | Single screen, navigation suite tabs or responsive drawer/rail |
 | include_wear | true | Generate watch APK/AAB and lightweight shared core |
 | wear_standalone | true | Watch standalone metadata (shown only when Wear is enabled) |
-| capabilities | none | Multiselect: Room, CameraX, LAN, Bluetooth, printing, serialization |
+| capabilities | none | Multiselect: Room, CameraX, LAN, Bluetooth, printing, serialization, Media3 playback |
 | ui_addons | none | Multiselect: selected UI, form, search and diagnostics packages |
 | include_http | false | OkHttp, Coil network image fetching, Internet permission |
 | include_background_jobs | false | WorkManager and a sample job |

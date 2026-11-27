@@ -21,7 +21,7 @@ Copier asks only for features you want:
 | --- | --- |
 | Device target | Phone/tablet Compose app; Wear OS companion (on by default) with its own watch UI, APK/AAB, manifest and shared `:core` logic |
 | Layout | Single screen, adaptive navigation tabs, or phone drawer/tablet rail (default) |
-| Native packs | Room database, CameraX, LAN discovery, Bluetooth, printing and Kotlin serialization, each with a starter Kotlin file |
+| Native packs | Room database, CameraX, LAN discovery, Bluetooth, printing, Kotlin serialization and Media3 playback, each with a starter Kotlin file |
 | Optional platform packs | HTTP + Coil network, background WorkManager, Storage Access Framework, notifications, Robolectric |
 | Visual components | Coil, Material 3 and Material 3 Adaptive by default; optional Compose Unstyled, JetCo, RikkaUI, Algolia, advanced bottom sheet, Sea Glass, FormInputs, Dateced and DejaVu |
 | Source references | FlexiUI source recipes and [Composables UI](https://composables.com/ui) copy/paste components (not pretend Maven dependencies) |

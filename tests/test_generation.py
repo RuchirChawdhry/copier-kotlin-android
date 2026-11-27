@@ -14,7 +14,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 COPIER = ["uvx", "--from", "copier==9.19.1", "copier"]
-NATIVE = ["room", "camera", "lan", "bluetooth", "printing", "serialization"]
+NATIVE = ["room", "camera", "lan", "bluetooth", "printing", "serialization", "media"]
 ADDONS = [
     "jetco",
     "rikkaui",
@@ -99,6 +99,7 @@ def main() -> None:
             "PrintTools.kt",
             "JsonContracts.kt",
             "PermissionGate.kt",
+            "MediaPlayerPreview.kt",
         ]:
             require(app / name)
         manifest = (full / "app/src/main/AndroidManifest.xml").read_text()
