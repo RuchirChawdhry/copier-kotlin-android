@@ -2,6 +2,7 @@ package {{ application_id }}
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,16 +33,18 @@ internal fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(AppSpace.sm),
     ) {
         Text("Appearance", style = MaterialTheme.typography.titleLarge)
-        ThemeMode.entries.chunked(2).forEach { modes ->
-            Row(horizontalArrangement = Arrangement.spacedBy(AppSpace.sm)) {
-                modes.forEach { mode ->
-                    FilterChip(
-                        selected = mode == theme,
-                        onClick = { scope.launch { store.setTheme(mode) } },
-                        label = { Text(mode.label) },
-                        modifier = Modifier.testTag("theme-${mode.name}"),
-                    )
-                }
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(AppSpace.sm),
+            verticalArrangement = Arrangement.spacedBy(AppSpace.xs),
+        ) {
+            ThemeMode.entries.forEach { mode ->
+                FilterChip(
+                    selected = mode == theme,
+                    onClick = { scope.launch { store.setTheme(mode) } },
+                    label = { Text(mode.label) },
+                    modifier = Modifier.testTag("theme-${mode.name}"),
+                )
             }
         }
         SettingsToggle("Dynamic colors", "Use system wallpaper colors", dynamic, "dynamic-colors") {

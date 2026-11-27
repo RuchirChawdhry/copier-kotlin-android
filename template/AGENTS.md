@@ -12,6 +12,7 @@ Aim to get a working user-visible prototype on a device in the first iteration. 
 
 - `app` is the phone/tablet UI and Android entrypoint; `AppViewModel.kt` owns screen and sample counter state. `SettingsStore.kt` is the DataStore example.
 - `AppNavigation.kt` is the responsive shell (single, tabs or adaptive); `UiComponents.kt` is the place for reusable components.
+- The Home screen demonstrates a swipeable Material 3 bottom sheet with working Settings/About shortcuts; replace its content in `HomeBottomSheet` with your app's quick actions. The Appearance settings use wrapping theme chips (`FlowRow`) that adapt to narrow and wide screens.
 - `AppDesign.kt` defines the Copier-selected visual preset: `AppSpace`, `AppTypography`, `AppShapes`, and `presetColorScheme`. Use `AppSpace` for spacing, `MaterialTheme.typography` for text, `MaterialTheme.shapes` for corners, and `MaterialTheme.colorScheme` for colors. Build on `AppSectionHeading` and `AppInfoCard` instead of creating disconnected styles screen by screen.
 - The `native`, `editorial`, and `technical` presets share Material 3 and phone/tablet adaptive navigation. Use readable text scaling and contrast, check the layout on narrow and wide devices, and keep Wear styling watch-specific. Prefer system font families unless a real feature needs a bundled font.
 - `core`, if present, holds logic shared with the separate `wear` app. Keep this lightweight. A watch needs its own round-screen Compose UI and manifest.

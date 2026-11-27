@@ -35,33 +35,41 @@ fun App() {
     val compact by store.compactResults.collectAsStateWithLifecycle(false)
     AppTheme(theme, dynamic) {
         AppNavigation(model.screen, model::navigate) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .widthIn(max = 840.dp)
-                        .padding(AppSpace.xl)
-                        .verticalScroll(remember(model.screen) { ScrollState(0) }),
-                    verticalArrangement = Arrangement.spacedBy(AppSpace.lg),
-                ) {
-                    when (model.screen) {
-                        Screen.HOME -> {
-                            HomeContent(model.count, model::increment)
-                            LibraryScreen(descriptions, compact)
+            val screenContent: @Composable () -> Unit = {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .widthIn(max = 840.dp)
+                            .padding(AppSpace.xl)
+                            .verticalScroll(remember(model.screen) { ScrollState(0) })
+                            .padding(bottom = if (model.screen == Screen.HOME) 96.dp else 0.dp),
+                        verticalArrangement = Arrangement.spacedBy(AppSpace.lg),
+                    ) {
+                        when (model.screen) {
+                            Screen.HOME -> {
+                                HomeContent(model.count, model::increment)
+                                LibraryScreen(descriptions, compact)
+                            }
+                            Screen.SETTINGS -> SettingsScreen(
+                                store,
+                                theme,
+                                dynamic,
+                                descriptions,
+                                compact,
+                            )
+                            Screen.ABOUT -> Text(
+                                stringResource(R.string.about_description),
+                                Modifier.testTag("about"),
+                            )
                         }
-                        Screen.SETTINGS -> SettingsScreen(
-                            store,
-                            theme,
-                            dynamic,
-                            descriptions,
-                            compact,
-                        )
-                        Screen.ABOUT -> Text(
-                            stringResource(R.string.about_description),
-                            Modifier.testTag("about"),
-                        )
                     }
                 }
+            }
+            if (model.screen == Screen.HOME) {
+                HomeBottomSheet(onNavigate = model::navigate, content = screenContent)
+            } else {
+                screenContent()
             }
         }
     }

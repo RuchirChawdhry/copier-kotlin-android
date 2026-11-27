@@ -199,6 +199,13 @@ def main() -> None:
             assert "?: DefaultDynamicColors" in (
                 app_sources / "SettingsStore.kt"
             ).read_text()
+            assert "FlowRow(" in (app_sources / "SettingsScreen.kt").read_text()
+            assert "ThemeMode.entries.chunked" not in (
+                app_sources / "SettingsScreen.kt"
+            ).read_text()
+            assert "BottomSheetScaffold(" in (app_sources / "UiComponents.kt").read_text()
+            assert "HomeBottomSheet(" in (app_sources / "App.kt").read_text()
+            require(destination / "app/src/androidTest/java/com/example/androidapp/BottomSheetTest.kt")
             assert "| Visual style |" in (destination / "README.md").read_text()
             for path in destination.rglob("*"):
                 assert not path.name.endswith(".jinja"), path
