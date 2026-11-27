@@ -1,0 +1,28 @@
+# UI and search building blocks
+
+Keep the starter fast: Material 3, Material 3 Adaptive, Compose and Coil are built in. Every other library is selectable through Copier, not downloaded by default. The Gradle version catalog records candidate coordinates; choose only the ones you will use in an app.
+
+| Option | Integration and intended use |
+| --- | --- |
+| Coil | Included as `libs.coil.compose`; render local resources or provide an image loader. For HTTP images, select the HTTP pack (which adds `coil-network-okhttp` and Internet permission). |
+| Material 3 Adaptive | Included `libs.compose.adaptive` for window sizes / foldables and `libs.compose.adaptive.navigation.suite` for adaptive navigation. Choose `tabs` to start with `NavigationSuiteScaffold`. |
+| Compose Unstyled | `unstyled` adds `libs.compose.unstyled`. Build custom-design controls without forcing a Material style. |
+| JetCo | `jetco` adds `libs.jetco` experimental component library. |
+| RikkaUI | `rikkaui` adds `foundation` and `components`; check APIs and Android compatibility for your use. |
+| Algolia InstantSearch | `algolia` adds `instantsearch-compose` and Internet permission. You must supply an Algolia index, application ID and **search-only** API key. |
+| Advanced Bottom Sheet | `advanced_sheet` adds `advanced-bottomsheet-material3`. It is an older library; test against this Compose version. |
+| Sea Glass | `sea_glass` adds visual effects; use sparingly on small/low-power devices. |
+| FormInputs | `form_inputs` adds the Compose FormInputs library, not its older XML variant. |
+| Dateced | `dateced` adds date/time utilities; it is not a screen component library. |
+| DejaVu | `dejavu` adds an **androidTest-only** Compose recomposition diagnostics dependency (not shipped in release APKs). |
+| FlexiUI | `flexiui` records a source recipe only. [BetterAndroid/FlexiUI](https://github.com/BetterAndroid/FlexiUI) is an old alpha and has no verified maintained Maven coordinate; copying unreviewed source would make clean builds unreliable. |
+| Composables UI | [composables.com/ui](https://composables.com/ui) is a browse-and-copy code gallery, **not a runtime package**. Choose individual components rather than adding a fake dependency. |
+
+## Recommended workflow
+
+1. Prototype using stock Material 3 components and Coil `AsyncImage` for local resources.
+2. If the design needs a specialized component, select the relevant addon through `copier update` or add its catalog alias deliberately.
+3. Add a screenshot, UI test tag and interaction test for each new component before depending on it in releases.
+4. Keep proprietary tokens out of app source. Never ship an Algolia *admin* API key.
+
+Wear OS uses **Wear Compose Material 3**, not the phone Material 3 components or arbitrary third-party phone controls. Share domain logic via `:core`; design watch-specific screens around a small circular touch surface.

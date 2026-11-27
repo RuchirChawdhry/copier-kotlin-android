@@ -1,0 +1,35 @@
+package {{ application_id }}
+
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
+
+/** Render a live camera feed after the caller has obtained CAMERA permission. */
+@Composable
+fun CameraPreview(modifier: Modifier = Modifier) {
+    val owner = LocalLifecycleOwner.current
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            PreviewView(context).also { view ->
+                val future = ProcessCameraProvider.getInstance(context)
+                future.addListener(
+                    {
+                        val provider = future.get()
+                        val preview = Preview.Builder().build()
+                        preview.setSurfaceProvider(view.surfaceProvider)
+                        provider.unbindAll()
+                        provider.bindToLifecycle(owner, CameraSelector.DEFAULT_BACK_CAMERA, preview)
+                    },
+                    ContextCompat.getMainExecutor(context),
+                )
+            }
+        },
+    )
+}

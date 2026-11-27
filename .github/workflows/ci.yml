@@ -13,6 +13,13 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  copier-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Generate minimal, default, and optional-capability projects
+        run: python3 tests/test_generation.py
   checks:
     uses: RuchirChawdhry/ci-workflows/.github/workflows/kotlin-android.yml@main
     with:

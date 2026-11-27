@@ -1,0 +1,50 @@
+package {{ application_id }}
+
+import android.content.Context
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
+import android.os.Bundle
+import android.os.CancellationSignal
+import android.os.ParcelFileDescriptor
+import android.print.PrintAttributes
+import android.print.PrintDocumentAdapter
+import android.print.PrintDocumentInfo
+import android.print.PrintManager
+import java.io.FileOutputStream
+
+/** Opens the platform print dialog using a one-page text document. */
+fun printText(context: Context, title: String, content: String) {
+    val manager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
+    manager.print(title, object : PrintDocumentAdapter() {
+        override fun onLayout(
+            oldAttributes: PrintAttributes?,
+            newAttributes: PrintAttributes,
+            cancellationSignal: CancellationSignal,
+            callback: LayoutResultCallback,
+            extras: Bundle?,
+        ) {
+            callback.onLayoutFinished(
+                PrintDocumentInfo.Builder("$title.pdf")
+                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                    .setPageCount(1)
+                    .build(),
+                true,
+            )
+        }
+
+        override fun onWrite(
+            pages: Array<out android.print.PageRange>,
+            destination: ParcelFileDescriptor,
+            cancellationSignal: CancellationSignal,
+            callback: WriteResultCallback,
+        ) {
+            PdfDocument().use { document ->
+                val page = document.startPage(PdfDocument.PageInfo.Builder(595, 842, 1).create())
+                page.canvas.drawText(content, 40f, 80f, Paint().apply { textSize = 16f })
+                document.finishPage(page)
+                FileOutputStream(destination.fileDescriptor).use { document.writeTo(it) }
+            }
+            callback.onWriteFinished(arrayOf(android.print.PageRange.ALL_PAGES))
+        }
+    }, null)
+}

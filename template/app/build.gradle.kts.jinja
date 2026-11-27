@@ -1,10 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.baselineprofile)
+{% if 'room' in capabilities %}
+    alias(libs.plugins.ksp)
+{% endif %}
+{% if 'serialization' in capabilities %}
+    alias(libs.plugins.kotlin.serialization)
+{% endif %}
 }
 
+val signingFile = providers.environmentVariable("ANDROID_SIGNING_STORE_FILE").orNull
 android {
     namespace = "{{ application_id }}"
     compileSdk = providers.gradleProperty("android.compileSdk").get().toInt()
@@ -14,13 +20,24 @@ android {
         applicationId = "{{ application_id }}"
         minSdk = providers.gradleProperty("android.minSdk").get().toInt()
         targetSdk = providers.gradleProperty("android.targetSdk").get().toInt()
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = providers.gradleProperty("app.versionCode").get().toInt()
+        versionName = providers.gradleProperty("app.versionName").get()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        signingFile?.let { path ->
+            create("releaseFromEnv") {
+                storeFile = file(path)
+                storePassword = providers.environmentVariable("ANDROID_SIGNING_STORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("ANDROID_SIGNING_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("ANDROID_SIGNING_KEY_PASSWORD").get()
+            }
+        }
+    }
     buildTypes {
         release {
+            signingFile?.let { signingConfig = signingConfigs.getByName("releaseFromEnv") }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -41,20 +58,26 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
 }
-kotlin {
-    jvmToolchain(providers.gradleProperty("android.javaVersion").get().toInt())
-}
 
 baselineProfile {
     automaticGenerationDuringBuild = false
 }
 
 dependencies {
+{% if include_wear %}
+    implementation(project(":core"))
+{% endif %}
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation(libs.activity.compose)
     implementation(libs.compose.material3)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.adaptive)
+    implementation(libs.compose.adaptive.navigation.suite)
+    implementation(libs.viewmodel.compose)
+    implementation(libs.lifecycle.compose)
+    implementation(libs.coil.compose)
     implementation(libs.compose.icons)
     implementation(libs.compose.preview)
     implementation(libs.profileinstaller)
@@ -68,6 +91,46 @@ dependencies {
 {%- endif %}
 {%- if include_http %}
     implementation(libs.okhttp)
+    implementation(libs.coil.network)
+{%- endif %}
+{%- if 'room' in capabilities %}
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+{%- endif %}
+{%- if 'camera' in capabilities %}
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+{%- endif %}
+{%- if 'serialization' in capabilities %}
+    implementation(libs.kotlinx.serialization)
+{%- endif %}
+{%- if 'jetco' in ui_addons %}
+    implementation(libs.jetco)
+{%- endif %}
+{%- if 'rikkaui' in ui_addons %}
+    implementation(libs.rikkaui.foundation)
+    implementation(libs.rikkaui.components)
+{%- endif %}
+{%- if 'unstyled' in ui_addons %}
+    implementation(libs.compose.unstyled)
+{%- endif %}
+{%- if 'algolia' in ui_addons %}
+    implementation(libs.algolia.instantsearch)
+{%- endif %}
+{%- if 'advanced_sheet' in ui_addons %}
+    implementation(libs.advanced.bottomsheet)
+{%- endif %}
+{%- if 'sea_glass' in ui_addons %}
+    implementation(libs.sea.glass)
+{%- endif %}
+{%- if 'form_inputs' in ui_addons %}
+    implementation(libs.form.inputs)
+{%- endif %}
+{%- if 'dateced' in ui_addons %}
+    implementation(libs.dateced)
 {%- endif %}
 {%- if include_background_jobs %}
     implementation(libs.work)
@@ -76,5 +139,8 @@ dependencies {
     androidTestImplementation(libs.android.test.junit)
     androidTestImplementation(libs.android.test.runner)
     androidTestImplementation(libs.uiautomator)
+{%- if 'dejavu' in ui_addons %}
+    androidTestImplementation(libs.dejavu)
+{%- endif %}
     baselineProfile(project(":benchmark"))
 }

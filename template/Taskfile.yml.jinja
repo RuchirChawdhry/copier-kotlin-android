@@ -22,8 +22,20 @@ tasks:
     cmd: bash scripts/dev.sh ./gradlew testDebugUnitTest
   build:
     cmd: bash scripts/dev.sh ./gradlew assembleDebug
+  build:phone:
+    cmd: bash scripts/dev.sh ./gradlew :app:assembleDebug
+{% if include_wear %}
+  build:wear:
+    cmd: bash scripts/dev.sh ./gradlew :wear:assembleDebug
+{% endif %}
   release:
     cmd: bash scripts/dev.sh ./gradlew assembleRelease bundleRelease
+  release:phone:
+    cmd: bash scripts/dev.sh ./gradlew :app:assembleRelease :app:bundleRelease
+{% if include_wear %}
+  release:wear:
+    cmd: bash scripts/dev.sh ./gradlew :wear:assembleRelease :wear:bundleRelease
+{% endif %}
   emulator:
     cmd: bash scripts/emulator.sh start
   emulator:create:

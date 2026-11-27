@@ -1,0 +1,29 @@
+package {{ application_id }}
+
+import android.content.Context
+import android.net.nsd.NsdManager
+import android.net.nsd.NsdServiceInfo
+
+/**
+ * Register an NSD discovery listener. The caller owns stopping discovery.
+ * Target SDK 36 inherits local network access with INTERNET permission.
+ * Before targeting SDK 37+, migrate to the system NSD picker or explicitly
+ * declare and request ACCESS_LOCAL_NETWORK at runtime.
+ */
+fun discoverLanServices(
+    context: Context,
+    serviceType: String,
+    onFound: (NsdServiceInfo) -> Unit,
+): () -> Unit {
+    val manager = context.getSystemService(Context.NSD_SERVICE) as NsdManager
+    val listener = object : NsdManager.DiscoveryListener {
+        override fun onDiscoveryStarted(type: String) = Unit
+        override fun onDiscoveryStopped(type: String) = Unit
+        override fun onServiceFound(info: NsdServiceInfo) = onFound(info)
+        override fun onServiceLost(info: NsdServiceInfo) = Unit
+        override fun onStartDiscoveryFailed(type: String, code: Int) = Unit
+        override fun onStopDiscoveryFailed(type: String, code: Int) = Unit
+    }
+    manager.discoverServices(serviceType, NsdManager.PROTOCOL_DNS_SD, listener)
+    return { manager.stopServiceDiscovery(listener) }
+}

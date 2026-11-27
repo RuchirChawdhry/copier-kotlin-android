@@ -1,6 +1,9 @@
 _min_copier_version: "9.19.1"
 _subdirectory: template
 _templates_suffix: .jinja
+_message_after_copy: >-
+  Created {{ project_name }}. Run `task setup`, then `task dev`.
+  Use `task release` to build distribution artifacts.
 project_name:
   type: str
   default: Android App
@@ -11,6 +14,51 @@ application_id:
   default: com.example.androidapp
   validator: >-
     {% if not (application_id | regex_search('^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$')) %}Use a lowercase reverse-domain application ID.{% endif %}
+ui_layout:
+  type: str
+  default: adaptive
+  help: Choose the starting phone/tablet navigation layout.
+  choices:
+    Single screen: single
+    Bottom tabs: tabs
+    Adaptive drawer and rail: adaptive
+include_wear:
+  type: bool
+  default: true
+  help: Also generate a standalone Wear OS app with its own watch-optimized UI and release artifact?
+wear_standalone:
+  type: bool
+  default: true
+  when: "{{ include_wear }}"
+  help: Can the watch app work without a paired phone?
+capabilities:
+  type: str
+  multiselect: true
+  default: []
+  help: Add only the native capabilities needed by your application.
+  choices:
+    Local database (Room): room
+    Camera (CameraX): camera
+    LAN discovery (NSD): lan
+    Bluetooth: bluetooth
+    Android printing: printing
+    JSON serialization: serialization
+ui_addons:
+  type: str
+  multiselect: true
+  default: []
+  help: Optional component libraries; Compose, Material 3, Coil and adaptive layouts are already included.
+  choices:
+    JetCo components: jetco
+    RikkaUI components: rikkaui
+    Compose Unstyled primitives: unstyled
+    Algolia InstantSearch Compose (requires Algolia): algolia
+    Advanced Bottom Sheet: advanced_sheet
+    Sea Glass visual effects: sea_glass
+    FormInputs Compose: form_inputs
+    Dateced date/time helpers: dateced
+    DejaVu recomposition diagnostics (instrumented tests): dejavu
+    FlexiUI source recipes (no verified Maven artifact): flexiui
 include_robolectric:
   type: bool
   default: false

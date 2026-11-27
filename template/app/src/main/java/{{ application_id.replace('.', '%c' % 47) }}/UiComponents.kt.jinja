@@ -1,5 +1,6 @@
 package {{ application_id }}
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +24,17 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+
+/** Local image example; external URLs also need Coil's network module and INTERNET permission. */
+@Composable
+internal fun AppArtwork() {
+    AsyncImage(
+        model = R.drawable.ic_app_logo,
+        contentDescription = null,
+        modifier = Modifier.size(48.dp),
+    )
+}
 
 @Composable
 internal fun SearchField(query: String, onQuery: (String) -> Unit) {

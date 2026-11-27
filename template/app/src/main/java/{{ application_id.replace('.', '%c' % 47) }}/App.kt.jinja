@@ -9,13 +9,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -24,26 +21,25 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun App() {
-    var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
-    var count by rememberSaveable { mutableIntStateOf(0) }
+    val model: AppViewModel = viewModel()
     val context = LocalContext.current
     val store = remember(context) { SettingsStore(context) }
-    val theme by store.theme.collectAsState(ThemeMode.SYSTEM)
-    val dynamic by store.dynamicColors.collectAsState(true)
-    val descriptions by store.showDescriptions.collectAsState(true)
-    val compact by store.compactResults.collectAsState(false)
+    val theme by store.theme.collectAsStateWithLifecycle(ThemeMode.SYSTEM)
+    val dynamic by store.dynamicColors.collectAsStateWithLifecycle(true)
+    val descriptions by store.showDescriptions.collectAsStateWithLifecycle(true)
+    val compact by store.compactResults.collectAsStateWithLifecycle(false)
     AppTheme(theme, dynamic) {
-        AppNavigation(screen, { screen = it }) {
+        AppNavigation(model.screen, model::navigate) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp)
-                    .verticalScroll(remember(screen) { ScrollState(0) }),
+                    .verticalScroll(remember(model.screen) { ScrollState(0) }),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                when (screen) {
+                when (model.screen) {
                     Screen.HOME -> {
-                        HomeContent(count) { count = increment(count) }
+                        HomeContent(model.count, model::increment)
                         LibraryScreen(descriptions, compact)
                     }
                     Screen.SETTINGS -> SettingsScreen(
@@ -65,10 +61,13 @@ fun App() {
 
 @Composable
 private fun HomeContent(count: Int, onIncrement: () -> Unit) {
+    AppArtwork()
     Text(stringResource(R.string.counter, count), Modifier.testTag("counter"))
     Button(onClick = onIncrement, modifier = Modifier.testTag("increment")) {
         Text(stringResource(R.string.increment))
     }
 }
 
+{% if not include_wear %}
 internal fun increment(value: Int): Int = value + 1
+{% endif %}

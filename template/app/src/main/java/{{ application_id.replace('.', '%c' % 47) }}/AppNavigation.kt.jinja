@@ -19,6 +19,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
+{% if ui_layout == 'adaptive' %}
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
+{% endif %}
+{% if ui_layout == 'tabs' %}
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+{% endif %}
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +37,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.unit.dp
+{% if ui_layout == 'adaptive' %}
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+{% endif %}
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -41,13 +50,35 @@ internal fun AppNavigation(
     onNavigate: (Screen) -> Unit,
     content: @Composable () -> Unit,
 ) {
+{% if ui_layout == 'single' %}
+    ScreenScaffold(screen, content = content)
+{% elif ui_layout == 'tabs' %}
+    NavigationSuiteScaffold(
+        navigationSuiteItems = {
+            Screen.entries.forEach { destination ->
+                item(
+                    selected = screen == destination,
+                    onClick = { onNavigate(destination) },
+                    icon = { Icon(destination.icon, contentDescription = null) },
+                    label = { Text(stringResource(destination.label)) },
+                )
+            }
+        },
+    ) {
+        ScreenScaffold(screen, content = content)
+    }
+{% else %}
+    // Adaptive windows respond to resizing, rotation, and fold/unfold changes.
+    val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     BoxWithConstraints(Modifier.fillMaxSize().semantics { testTagsAsResourceId = true }) {
+        val medium = windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+        val expanded = windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
         when {
-            maxWidth >= 840.dp || (maxWidth >= 600.dp && maxWidth > maxHeight) -> {
+            expanded || (medium && maxWidth > maxHeight) -> {
                 WideNavigation(screen, onNavigate, content)
             }
 
-            maxWidth >= 600.dp -> Row(Modifier.fillMaxSize()) {
+            medium -> Row(Modifier.fillMaxSize()) {
                 AppRail(screen, onNavigate)
                 Box(Modifier.weight(1f)) {
                     ScreenScaffold(screen, content = content)
@@ -57,6 +88,7 @@ internal fun AppNavigation(
             else -> PhoneNavigation(screen, onNavigate, content)
         }
     }
+{% endif %}
 }
 
 @Composable

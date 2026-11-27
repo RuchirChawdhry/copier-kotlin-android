@@ -1,6 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-{% if include_http %}
+{% if include_http or 'lan' in capabilities or 'algolia' in ui_addons %}
     <uses-permission android:name="android.permission.INTERNET" />
+{% endif %}
+{% if 'lan' in capabilities %}
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+{% endif %}
+{% if 'camera' in capabilities %}
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+{% endif %}
+{% if 'bluetooth' in capabilities %}
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
 {% endif %}
 {% if include_notifications %}
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />

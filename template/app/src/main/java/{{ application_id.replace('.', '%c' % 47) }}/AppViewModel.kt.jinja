@@ -1,0 +1,26 @@
+package {{ application_id }}
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+
+internal class AppViewModel(private val state: SavedStateHandle) : ViewModel() {
+    var screen by mutableStateOf(Screen.valueOf(state["screen"] ?: Screen.HOME.name))
+        private set
+
+    var count by mutableIntStateOf(state["count"] ?: 0)
+        private set
+
+    fun navigate(destination: Screen) {
+        screen = destination
+        state["screen"] = destination.name
+    }
+
+    fun increment() {
+        count = increment(count)
+        state["count"] = count
+    }
+}

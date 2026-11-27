@@ -1,0 +1,9 @@
+package {{ application_id }}
+
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
+
+/** Call only after obtaining BLUETOOTH_CONNECT on Android 12+. */
+fun bluetoothAdapter(context: Context): BluetoothAdapter? =
+    (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter

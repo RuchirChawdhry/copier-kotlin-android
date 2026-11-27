@@ -1,0 +1,53 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
+}
+
+val signingFile = providers.environmentVariable("ANDROID_SIGNING_STORE_FILE").orNull
+android {
+    namespace = "{{ application_id }}.wear"
+    compileSdk = providers.gradleProperty("android.compileSdk").get().toInt()
+
+    defaultConfig {
+        applicationId = "{{ application_id }}"
+        minSdk = 30
+        targetSdk = providers.gradleProperty("android.targetSdk").get().toInt()
+        // The phone and watch use one Play listing and must have unique version codes.
+        versionCode = providers.gradleProperty("app.versionCode").get().toInt() + 100000
+        versionName = providers.gradleProperty("app.versionName").get()
+    }
+
+    signingConfigs {
+        signingFile?.let { path ->
+            create("releaseFromEnv") {
+                storeFile = file(path)
+                storePassword = providers.environmentVariable("ANDROID_SIGNING_STORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("ANDROID_SIGNING_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("ANDROID_SIGNING_KEY_PASSWORD").get()
+            }
+        }
+    }
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingFile?.let { signingConfig = signingConfigs.getByName("releaseFromEnv") }
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+        }
+    }
+    buildFeatures { compose = true }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation(project(":core"))
+    implementation(platform(libs.compose.bom))
+    implementation(libs.activity.compose)
+    implementation(libs.wear.compose.material3)
+    implementation(libs.wear.compose.foundation)
+    implementation(libs.compose.preview)
+    debugImplementation(libs.compose.tooling)
+}

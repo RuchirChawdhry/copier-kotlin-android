@@ -1,29 +1,31 @@
-# Android development guide
+# Agent guide: rapid Android delivery
 
-## Start here
-- Ubuntu: run bash scripts/bootstrap.sh once (or task bootstrap if Task is installed). Review SDK licenses.
-- Run task doctor before debugging environment failures; task doctor:json emits the same JSON.
-- Run task dev to boot a headless AVD, install and launch the app. Set ANDROID_SERIAL for multiple devices.
+Aim to get a working user-visible prototype on a device in the first iteration. This is a small app foundation, not an enterprise architecture kit.
 
-## Architecture
-- Keep one application module unless separation solves a real problem.
-- App.kt owns app state; Screen.kt registers destinations. AppNavigation.kt and NavigationComponents.kt implement the adaptive shell.
-- SettingsStore.kt persists preferences using DataStore; SettingsScreen.kt edits them; AppTheme.kt defines themes.
-- Reuse UiComponents.kt or native Material 3 components; avoid unnecessary abstractions.
-- OptionalIntegrations.kt contains selected platform examples. Do not add unused permissions or dependencies.
-- Add string resources for new production UI and accessible descriptions for nondecorative icons.
+## First steps
 
-## Feedback loop
-- task fix formats; task check runs static checks; task test runs JVM tests; task build compiles the APK.
-- Run task test:tooling for host scripts and task test:ui after navigation or UI changes. CI uses the same rules and collects reports.
-- task device:inspect returns the UI hierarchy as JSON. Use stable Compose test tags; task device:tap -- TAG taps a uniquely matching node.
-- task device:restart, task device:screenshot, task device:crashes and task device:info diagnose a running app.
-- Clear app data only when explicitly intended; task device:clear -- --confirm is destructive.
-- task screenshots exercises the real emulator. Update the scenario JSON and instrumentation test together.
+- `task doctor` checks prerequisites; `task dev` boots a phone emulator and installs the app. Run `task test:tooling` for host tooling.
+- Read `README.md` to see which Copier capability packs, UI libraries and targets were selected.
+- Read `gradle/libs.versions.toml` before adding dependencies. Use the SDK, AndroidX and existing modules when possible.
 
-## Dependencies and performance
-- gradle/libs.versions.toml is the version catalog; gradle.properties owns SDK configuration.
-- Prefer Android SDK and AndroidX. Enable extra capabilities only as needed.
-- task benchmark:size, task benchmark:memory, task benchmark:scroll and task benchmark collect measurements; task benchmark:report creates JSON and HTML.
-- Runtime comparisons require physical devices and equivalent workloads. Frame statistics are not an automated scroll benchmark.
-- Never disable lint to hide failures. Do not commit local.properties, keystores or secrets.
+## Where code goes
+
+- `app` is the phone/tablet UI and Android entrypoint; `AppViewModel.kt` owns screen and sample counter state. `SettingsStore.kt` is the DataStore example.
+- `AppNavigation.kt` is the responsive shell (single, tabs or adaptive); `UiComponents.kt` is the place for reusable components.
+- `core`, if present, holds logic shared with the separate `wear` app. Keep this lightweight. A watch needs its own round-screen Compose UI and manifest.
+- Optional capability starter files (Room, CameraX, LAN discovery, Bluetooth, printing, serialization) compile only when selected. Ask for runtime permissions and handle unavailable hardware before invoking features.
+- Prefer feature-oriented files for each new screen. Extract modules only when sharing or build speed warrants it. Never store credentials in source or the APK.
+
+## Agent feedback loop
+
+- `task fix` formats. `task check` runs ktlint, detekt and Android lint. `task test` executes unit tests; `task test:ui` runs instrumented tests.
+- `task device:list`, `task device:info`, `task device:inspect` (structured UI hierarchy), `task device:tap -- TAG`, `task device:screenshot` and `task device:crashes` support autonomous debugging. Use stable Compose test tags and accessible labels.
+- `task screenshots` is manual. It updates generated image outputs only when requested; do not tie screenshot jobs into other workflows.
+- Check compact phone, expanded tablet and, if generated, round Wear OS emulator configurations before release. Simulators do not replace hardware validation of camera, BLE, LAN or wearable interactions.
+
+## Build and publish
+
+- `task build:phone`, `task release:phone` build the handheld variant; when available `task build:wear`, `task release:wear` build the companion. `task release` packages all selected artifacts.
+- The manual release GitHub Action uploads artifacts; it does **not** publish to Google Play. Store submission, signing and version increments remain explicit user actions.
+- Run `task benchmark` only on a suitable device to collect meaningful traces. Do not confuse sample frame stats with reproducible benchmarks.
+- Never commit `local.properties`, SDK credentials, Play signing keys, keystores or secrets.

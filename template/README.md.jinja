@@ -1,20 +1,49 @@
 # {{ project_name }}
 
-Native Android app with Kotlin and Jetpack Compose.
+Kotlin + Jetpack Compose starter for rapidly prototyping and releasing Android apps on phones and tablets{% if include_wear %}, with a separately installable Wear OS companion{% endif %}.
 
-Install JDK 17, Android SDK command-line tools, Git and Task. Set ANDROID_HOME and put sdkmanager, avdmanager, adb and emulator on PATH.
+## First run
 
-On Ubuntu, run `bash scripts/bootstrap.sh` (or `task bootstrap` if Go Task is installed) to provision missing prerequisites and create an AVD (SDK license acceptance is interactive). Run `task doctor` and `task dev` to verify and launch. Use `task fix`, `task check`, `task test`, `task build` for the normal feedback loop. See AGENTS.md for device automation and reporting.
+On Ubuntu, `bash scripts/bootstrap.sh` installs development prerequisites. Otherwise install JDK 17+, the Android SDK and [Go Task](https://taskfile.dev/), and set `ANDROID_HOME`. Then:
 
-For a local x86-64 emulator:
-
-```bash
-sdkmanager 'system-images;android-35;google_apis;x86_64'
-avdmanager create avd -n dev -k 'system-images;android-35;google_apis;x86_64'
-export ANDROID_AVD_NAME=dev
-task emulator
+```sh
+task setup     # install SDK packages / check local tools
+task doctor    # readable environment diagnostics
+task dev       # boot an emulator, install, and launch the phone app
+task check     # formatting and static checks
+task test      # JVM tests
+task build     # debug APKs
 ```
 
-In another terminal, run `task run`, `task test:ui`, or `task screenshots`. Use a physical device for trustworthy benchmark measurements. `task benchmark:profile` generates startup profiles; `task benchmark` records cold startup and Perfetto traces. Memory and frame commands sample a running application, not controlled benchmarks. `task release` produces unsigned distribution artifacts. Use a signing configuration kept outside version control.
+`task test:ui` runs instrumented tests. `task device:inspect` and `task device:tap -- TAG` expose semantic UI nodes to coding agents. `task screenshots` runs on demand, not in routine CI. Consult [AGENTS.md](AGENTS.md) for implementation conventions and device tools.
 
-CI checks formatting, lint, JVM tests, APK builds and instrumented navigation. The manual screenshot workflow replaces screenshots; compatibility runs API 26 and 35. Android SDK 35 is a pinned development baseline, not a promise of current Play Store eligibility.
+## What was selected
+
+| Copier choice | Value |
+| --- | --- |
+| Application ID | `{{ application_id }}` |
+| Phone/tablet navigation | `{{ ui_layout }}` |
+| Wear OS module | `{{ include_wear }}` |
+| Native capabilities | {{ capabilities | join(', ') if capabilities else 'None; add as needed' }} |
+| UI add-ons | {{ ui_addons | join(', ') if ui_addons else 'None; add as needed' }} |
+
+The phone/tablet build uses one `:app` APK or AAB and resizes its Compose UI for larger screens. {% if include_wear %}Wear OS is a separate `:wear` APK/AAB with round-screen Compose Material 3, a watch manifest, and a distinct version-code range. The tiny `:core` module shows how to share business logic; extend it with the domain models and services your real app needs. The watch has its own UI because phone layouts and some hardware permissions are unsuitable on a watch. Both packages use `{{ application_id }}` and must use the **same signing key** for companion installs.{% else %}The watch app is omitted. You can add it by rerunning Copier with `include_wear=true` and reviewing the update.{% endif %}
+
+The base app has Material 3, Material 3 Adaptive, lifecycle-aware state, DataStore settings, Coil image loading, Compose tests, and developer tooling. Selected native capability examples live in files such as `NotesDatabase.kt`, `CameraPreview.kt`, or `LanDiscovery.kt` and are intentionally not launched before the app asks for relevant permissions.
+
+{% if 'algolia' in ui_addons %}Algolia InstantSearch is linked, but search requires your own Algolia app ID, index, and search-only API key. Keep administrative credentials off-device.
+{% endif %}{% if 'flexiui' in ui_addons %}FlexiUI was selected as a **source recipe**, not a compiled Gradle dependency: no currently maintained, verified Maven coordinate was found. Inspect [BetterAndroid/FlexiUI](https://github.com/BetterAndroid/FlexiUI) before copying compatible source.
+{% endif %}
+For copy/paste components, browse [Composables UI](https://composables.com/ui). This is a source gallery, not a Gradle dependency. Other optional add-ons are in `gradle/libs.versions.toml`; read [UI component guidance](docs/UI-LIBRARIES.md) before pulling in an experimental component library.
+
+## Release artifacts
+
+```sh
+task release:phone    # app/build/outputs/apk|bundle/release
+{% if include_wear %}task release:wear     # wear/build/outputs/apk|bundle/release
+{% endif %}task release          # all selected targets
+```
+
+The manual **Build release artifacts** GitHub Action packages APKs and AABs for download. It does not deploy to Google Play. Without signing credentials, artifacts are unsigned (except any Android tooling default) and not ready for store distribution. For signing locally, set `ANDROID_SIGNING_STORE_FILE`, `ANDROID_SIGNING_STORE_PASSWORD`, `ANDROID_SIGNING_KEY_ALIAS`, `ANDROID_SIGNING_KEY_PASSWORD`. For GitHub Actions, create the equivalent three password/alias secrets plus `ANDROID_KEYSTORE_BASE64` containing the base64-encoded keystore. Never commit a keystore or secrets. Increase `app.versionCode` and `app.versionName` in `gradle.properties` before each release. {% if include_wear %}The Wear build offsets its version code by 100000 so phone and watch artifacts can coexist under one application ID; keep the base version below 100000.{% endif %}
+
+Start with one feature, get it running on the emulator, and expand the capability selection only when it is useful. A watch companion is not automatically equivalent to every phone feature; file access, scanner, LAN and media features need device-specific permission and UI testing.
