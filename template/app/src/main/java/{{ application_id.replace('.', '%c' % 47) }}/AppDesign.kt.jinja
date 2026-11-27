@@ -97,6 +97,8 @@ internal val AppTypography: Typography = Typography().let { base ->
     }
 }
 
+/** Palette hex values are intentional design tokens, not unexplained business-logic numbers. */
+@Suppress("MagicNumber")
 internal fun presetColorScheme(dark: Boolean): ColorScheme = when (GeneratedVisualStyle) {
     VisualStyle.NATIVE -> if (dark) darkColorScheme() else lightColorScheme()
     VisualStyle.EDITORIAL -> if (dark) {
