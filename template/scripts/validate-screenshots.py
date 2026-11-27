@@ -8,16 +8,23 @@ import zlib
 
 MANIFEST = json.loads(pathlib.Path(__file__).with_name("screenshot-scenarios.json").read_text())
 LAYOUTS = MANIFEST["layouts"]
-EXPECTED = {
-    f"{theme}-{layout}-{screen}.png"
-    for theme in MANIFEST["themes"]
-    for layout, spec in LAYOUTS.items()
-    for screen in spec["screens"]
-}
 SIGNATURE = bytes.fromhex("89504e470d0a1a0a")
 
 
-def validate_png(path):
+def expected_names(layouts, themes):
+    unknown_layouts = set(layouts) - LAYOUTS.keys()
+    unknown_themes = set(themes) - set(MANIFEST["themes"])
+    if unknown_layouts or unknown_themes or not layouts or not themes:
+        raise ValueError(f"unknown or missing screenshot selection: {unknown_layouts}, {unknown_themes}")
+    return {
+        f"{theme}-{layout}-{screen}.png"
+        for theme in themes
+        for layout in layouts
+        for screen in LAYOUTS[layout]["screens"]
+    }
+
+
+def validate_png(path, expected_dimensions):
     data = path.read_bytes()
     if not data.startswith(SIGNATURE):
         raise ValueError(f"invalid PNG signature ({len(data)} bytes; header={data[:16].hex()})")
@@ -41,6 +48,8 @@ def validate_png(path):
         if kind == b"IEND":
             if size or types[0] != b"IHDR" or b"IDAT" not in types or not dimensions or not all(dimensions):
                 raise ValueError("invalid PNG structure")
+            if dimensions != expected_dimensions:
+                raise ValueError(f"unexpected dimensions {dimensions}; expected {expected_dimensions}")
             if end != len(data):
                 # A complete PNG can be recovered without modifying any image data.
                 print(f"{path.name}: removing {len(data) - end} bytes after verified IEND")
@@ -66,13 +75,26 @@ def main():
         spec = LAYOUTS[sys.argv[2]]
         print(spec["size"], spec["density"], spec["rotation"])
         return
-    root = pathlib.Path(sys.argv[1])
+    if sys.argv[1] == "--selected":
+        root = pathlib.Path(sys.argv[2])
+        layouts = sys.argv[3].split()
+        themes = sys.argv[4].split()
+    else:
+        root = pathlib.Path(sys.argv[1])
+        layouts = list(LAYOUTS)
+        themes = MANIFEST["themes"]
+    try:
+        expected = expected_names(layouts, themes)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
     actual = {p.name for p in root.iterdir()}
-    if actual != EXPECTED:
-        raise SystemExit(f"Missing: {sorted(EXPECTED - actual)}; unexpected: {sorted(actual - EXPECTED)}")
-    for name in sorted(EXPECTED):
+    if actual != expected:
+        raise SystemExit(f"Missing: {sorted(expected - actual)}; unexpected: {sorted(actual - expected)}")
+    for name in sorted(expected):
         try:
-            validate_png(root / name)
+            layout = next(layout for layout in LAYOUTS if f"-{layout}-" in name)
+            expected_dimensions = tuple(map(int, LAYOUTS[layout]["size"].split("x")))
+            validate_png(root / name, expected_dimensions)
         except (ValueError, OSError) as exc:
             raise SystemExit(f"{name}: {exc}") from exc
 

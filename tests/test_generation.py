@@ -5,10 +5,14 @@ Run with: python3 tests/test_generation.py
 
 from __future__ import annotations
 
+import json
+import runpy
 import shutil
 import re
+import struct
 import subprocess
 import tempfile
+import zlib
 from pathlib import Path
 
 
@@ -72,12 +76,61 @@ def main() -> None:
         require(default / ".github/workflows/release.yml")
         assert "workflow_dispatch:" in (default / ".github/workflows/release.yml").read_text()
         assert "push:" not in (default / ".github/workflows/screenshots.yml").read_text()
+        for screenshot_action in [
+            REPO / ".github/workflows/screenshots.yml",
+            default / ".github/workflows/screenshots.yml",
+        ]:
+            assert "on:\n  workflow_dispatch:\n" in screenshot_action.read_text()
+        for action in list((REPO / ".github/workflows").glob("*.yml")) + list(
+            (default / ".github/workflows").glob("*.yml")
+        ):
+            if action.name != "screenshots.yml":
+                assert "mode: screenshots" not in action.read_text(), action
         assert "dependencies {\n    implementation(project(\":core\"))" in (
             default / "app/build.gradle.kts"
         ).read_text()
         assert "import kotlinx.coroutines.launch\n\n@OptIn" in (
             default / "app/src/main/java/com/example/androidapp/AppNavigation.kt"
         ).read_text()
+        scenarios = json.loads((default / "scripts/screenshot-scenarios.json").read_text())
+        assert scenarios["layouts"]["phone"]["size"] == "540x1170"
+        assert scenarios["layouts"]["rail"]["size"] == "800x1200"
+        assert scenarios["layouts"]["wide"]["size"] == "1024x1280"
+        assert scenarios["layouts"]["landscape"]["size"] == "960x540"
+        for layout, spec in scenarios["layouts"].items():
+            width, height = map(int, spec["size"].split("x"))
+            dp_width = width * 160 / spec["density"]
+            if layout == "phone":
+                assert dp_width < 600
+            if layout == "rail":
+                assert 600 <= dp_width < 840
+            if layout == "wide":
+                assert dp_width >= 840
+            if layout == "landscape":
+                assert width > height and dp_width >= 600
+        assert "screenshots:preview:" in (default / "Taskfile.yml").read_text()
+        validator = runpy.run_path(str(default / "scripts/validate-screenshots.py"))
+        assert len(validator["expected_names"](["phone"], ["light"])) == 7
+        assert len(validator["expected_names"](list(scenarios["layouts"]), ["light", "dark"])) == 30
+
+        def chunk(kind: bytes, payload: bytes) -> bytes:
+            return (struct.pack(">I", len(payload)) + kind + payload +
+                    struct.pack(">I", zlib.crc32(kind + payload)))
+
+        sample = work / "sample.png"
+        sample.write_bytes(
+            bytes.fromhex("89504e470d0a1a0a")
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(b"\x00\x00\x00\x00\xff"))
+            + chunk(b"IEND", b"")
+        )
+        validator["validate_png"](sample, (1, 1))
+        try:
+            validator["validate_png"](sample, (540, 1170))
+        except ValueError as exc:
+            assert "unexpected dimensions" in str(exc)
+        else:
+            raise AssertionError("Screenshot dimension validation accepted the wrong image size")
 
         lean = work / "lean"
         render(

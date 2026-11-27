@@ -80,8 +80,11 @@ capture_layout() {
         -e class "$app_id.NavigationTest" \
         -e captureTheme "$theme" -e captureLayout "$layout" "$runner" \
         | tee "reports/instrumentation-$theme-$layout.txt"
-    grep -Eq '^OK \(1 test\)[[:space:]]*$' "reports/instrumentation-$theme-$layout.txt"
-    grep -Eq '^INSTRUMENTATION_CODE: -1[[:space:]]*$' "reports/instrumentation-$theme-$layout.txt"
+    if ! grep -Eq '^OK \(1 test\)[[:space:]]*$' "reports/instrumentation-$theme-$layout.txt" || \
+        ! grep -Eq '^INSTRUMENTATION_CODE: -1[[:space:]]*$' "reports/instrumentation-$theme-$layout.txt"; then
+        echo "::error title=Screenshot scenario failed::$theme/$layout instrumentation failed; inspect the uploaded log"
+        return 1
+    fi
     for screen in "${screens[@]}"; do
         adb shell -T run-as "$app_id" cat "files/screenshots/$theme-$screen.png" \
             > "$temp/$theme-$screen.png"
@@ -93,8 +96,25 @@ if [[ "${ANDROID_CI_MODE:-}" == screenshots ]]; then
     adb shell pm clear "$app_id"
 fi
 adb shell -T run-as "$app_id" mkdir -p files/screenshots
-read -r -a layouts <<< "$(python3 scripts/validate-screenshots.py --layouts)"
-read -r -a themes <<< "$(python3 scripts/validate-screenshots.py --themes)"
+layout_selection=${SCREENSHOT_LAYOUTS:-$(python3 scripts/validate-screenshots.py --layouts)}
+theme_selection=${SCREENSHOT_THEMES:-$(python3 scripts/validate-screenshots.py --themes)}
+read -r -a layouts <<< "$layout_selection"
+read -r -a themes <<< "$theme_selection"
+preview=false
+if [[ -n "${SCREENSHOT_LAYOUTS:-}${SCREENSHOT_THEMES:-}" ]]; then
+    preview=true
+    if [[ "${ANDROID_CI_MODE:-}" == screenshots ]]; then
+        echo 'CI must capture the complete screenshot set.' >&2
+        exit 1
+    fi
+    # Validate selections before touching any existing images.
+    for layout in "${layouts[@]}"; do
+        python3 scripts/validate-screenshots.py --display "$layout" >/dev/null
+    done
+    for theme in "${themes[@]}"; do
+        case "$theme" in light|dark) ;; *) echo "Unknown theme: $theme" >&2; exit 1 ;; esac
+    done
+fi
 for layout in "${layouts[@]}"; do
     adb shell am force-stop "$app_id"
     configure_display "$layout"
@@ -107,6 +127,13 @@ for layout in "${layouts[@]}"; do
         capture_layout "$theme" "$layout"
     done
 done
-python3 scripts/validate-screenshots.py "$temp"
-rm -rf screenshots
-mv "$temp" screenshots
+if [[ "$preview" == true ]]; then
+    python3 scripts/validate-screenshots.py --selected "$temp" "$layout_selection" "$theme_selection"
+    rm -rf reports/screenshot-preview
+    mv "$temp" reports/screenshot-preview
+    echo 'Preview captures: reports/screenshot-preview/'
+else
+    python3 scripts/validate-screenshots.py "$temp"
+    rm -rf screenshots
+    mv "$temp" screenshots
+fi

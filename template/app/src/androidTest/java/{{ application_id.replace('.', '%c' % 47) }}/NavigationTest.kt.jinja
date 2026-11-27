@@ -108,13 +108,13 @@ class NavigationTest {
         search.performScrollTo().performClick().performTextReplacement("photo")
         search.performImeAction()
         compose.onNodeWithTag("search-count").assertTextEquals("1 results")
-        compose.onNodeWithTag("result-photos").assertIsDisplayed()
+        compose.onNodeWithTag("result-photos").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("result-documents").assertDoesNotExist()
         capture("phone-search")
-        search.performTextReplacement("no match")
-        compose.onNodeWithTag("search-empty").assertExists()
+        search.performScrollTo().performTextReplacement("no match")
+        compose.onNodeWithTag("search-empty").performScrollTo().assertIsDisplayed()
         capture("phone-search-empty")
-        compose.onNodeWithTag("clear-search").performClick()
+        compose.onNodeWithTag("clear-search").performScrollTo().performClick()
         compose.onNodeWithTag("search-count").assertTextEquals("4 results")
     }
 

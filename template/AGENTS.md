@@ -22,7 +22,8 @@ Aim to get a working user-visible prototype on a device in the first iteration. 
 
 - `task fix` formats. `task check` runs ktlint, detekt and Android lint. `task test` executes unit tests; `task test:ui` runs instrumented tests.
 - `task device:list`, `task device:info`, `task device:inspect` (structured UI hierarchy), `task device:tap -- TAG`, `task device:screenshot` and `task device:crashes` support autonomous debugging. Use stable Compose test tags and accessible labels.
-- `task screenshots` is manual. It updates generated image outputs only when requested; do not tie screenshot jobs into other workflows.
+- `task screenshots:preview` records just light-theme phone screens into `reports/screenshot-preview/` without touching committed images; use it while iterating. `task screenshots` records the full light/dark phone/tablet set. The GitHub screenshot workflow is manual and never invoked by another workflow.
+- Screenshot scenarios are source-of-truth in `scripts/screenshot-scenarios.json`; validate screen visibility before capturing. `scripts/validate-screenshots.py` checks filenames, PNG chunk integrity and exact pixel dimensions. Keep test tags stable so an agent can scroll to offscreen content.
 - Check compact phone, expanded tablet and, if generated, round Wear OS emulator configurations before release. Simulators do not replace hardware validation of camera, BLE, LAN or wearable interactions.
 - `task emulator:tablet:create` and (when enabled) `task emulator:wear:create`, `task emulator:wear:start`, `task run:wear` offer specific device loops. Select the correct `ANDROID_SERIAL` before installing, tapping or taking screenshots.
 

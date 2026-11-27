@@ -76,6 +76,9 @@ tasks:
     cmd: bash scripts/dev.sh ./gradlew connectedDebugAndroidTest
   screenshots:
     cmd: bash scripts/dev.sh bash scripts/screenshots.sh
+  screenshots:preview:
+    desc: Fast, light-theme phone preview without replacing the screenshot set
+    cmd: SCREENSHOT_LAYOUTS=phone SCREENSHOT_THEMES=light bash scripts/dev.sh bash scripts/screenshots.sh
   logs:
     cmd: bash scripts/dev.sh adb logcat -d
   benchmark:

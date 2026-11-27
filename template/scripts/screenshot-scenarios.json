@@ -5,8 +5,8 @@
   ],
   "layouts": {
     "phone": {
-      "size": "1080x1920",
-      "density": 440,
+      "size": "540x1170",
+      "density": 220,
       "rotation": 0,
       "screens": [
         "home",
@@ -19,8 +19,8 @@
       ]
     },
     "rail": {
-      "size": "1200x1800",
-      "density": 280,
+      "size": "800x1200",
+      "density": 192,
       "rotation": 0,
       "screens": [
         "home",
@@ -28,8 +28,8 @@
       ]
     },
     "wide": {
-      "size": "1600x2000",
-      "density": 280,
+      "size": "1024x1280",
+      "density": 180,
       "rotation": 0,
       "screens": [
         "home",
@@ -38,8 +38,8 @@
       ]
     },
     "landscape": {
-      "size": "1920x1080",
-      "density": 440,
+      "size": "960x540",
+      "density": 220,
       "rotation": 0,
       "screens": [
         "home",
