@@ -22,7 +22,12 @@ class BottomSheetTest {
         compose.onNodeWithTag("quick-action-settings").assertIsDisplayed().performClick()
         compose.onNodeWithTag("settings").assertIsDisplayed()
         listOf(
-            "SYSTEM", "LIGHT", "DARK", "AMOLED", "SOLARIZED_LIGHT", "SOLARIZED_DARK",
+            "SYSTEM",
+            "LIGHT",
+            "DARK",
+            "AMOLED",
+            "SOLARIZED_LIGHT",
+            "SOLARIZED_DARK",
         ).forEach { mode ->
             compose.onNodeWithTag("theme-$mode").assertExists()
         }
